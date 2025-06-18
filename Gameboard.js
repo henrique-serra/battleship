@@ -3,7 +3,7 @@ import Ship from "./Ship.js";
 export default class Gameboard {
   constructor() {
     this.defenseBoard = Array.from({ length: 10 }, (_) => Array.from({ length: 10 }, (_) => ({ ship: null, hitTaken: false })));
-    this.attacks = [];
+    this.missedAttacks = [];
   }
 
   offLimits(length, row, col, horizontally) {
@@ -50,9 +50,25 @@ export default class Gameboard {
     for (const [r, c] of positions) {
       this.defenseBoard[r][c].ship = ship;
     }
+
+    return ship;
   }
 
   receiveAttack(row, col) {
+    if(
+      row < 0 ||
+      col < 0 ||
+      row >= this.defenseBoard.length ||
+      col >= this.defenseBoard[0].length ||
+      typeof row !== 'number' ||
+      typeof col !== 'number'
+    ) throw new Error();
     
+    const ship = this.defenseBoard[row][col].ship;
+    if(ship) {
+      ship.hit()
+    } else {
+      this.missedAttacks.push([row, col]);
+    }
   }
 }

@@ -2,12 +2,13 @@ import Gameboard from './Gameboard.js';
 
 let gameboard;
 
+beforeEach(() => gameboard = new Gameboard());
+
 describe('Gameboard class', () => {
-  beforeEach(() => gameboard = new Gameboard());
   test('should instantiate correctly', () => {
     expect(gameboard).toBeDefined();
     expect(Array.isArray(gameboard.defenseBoard)).toBe(true);
-    expect(Array.isArray(gameboard.attacks)).toBe(true);
+    expect(Array.isArray(gameboard.missedAttacks)).toBe(true);
   });
 
   describe('placeShip should place ships correctly', () => {
@@ -155,24 +156,139 @@ describe('Gameboard class', () => {
   });
 
   describe('receiveAttack', () => {
-    const testCases = {
+    const receiveAttackCases = {
       success: {
         hit: [
           { 
             shipPosition: { length: 2, row: 0, col: 0, horizontally: true },
             attackCoordinates: { row: 0, col: 0 },
+          },
+          {
+            shipPosition: { length: 3, row: 4, col: 4, horizontally: true },
+            attackCoordinates: { row: 4, col: 5 }, // meio do navio horizontal
+          },
+          {
+            shipPosition: { length: 4, row: 6, col: 2, horizontally: true },
+            attackCoordinates: { row: 6, col: 5 }, // último segmento
+          },
+          {
+            shipPosition: { length: 2, row: 1, col: 1, horizontally: false },
+            attackCoordinates: { row: 2, col: 1 }, // vertical, segundo segmento
+          },
+          {
+            shipPosition: { length: 3, row: 7, col: 3, horizontally: false },
+            attackCoordinates: { row: 7, col: 3 }, // vertical, primeiro segmento
+          },
+          {
+            shipPosition: { length: 1, row: 9, col: 9, horizontally: true },
+            attackCoordinates: { row: 9, col: 9 }, // navio de tamanho 1
           }
         ],
         noHit: [
-          { 
-            shipPosition: { length: 2, row: 0, col: 0, horizontally: true },
-            attackCoordinates: { row: 5, col: 5 },
-          }
-        ]
+            {
+              shipPosition: { length: 2, row: 0, col: 0, horizontally: true },
+              attackCoordinates: { row: 5, col: 5 }, // célula vazia distante
+            },
+            {
+              shipPosition: { length: 3, row: 4, col: 4, horizontally: true },
+              attackCoordinates: { row: 4, col: 1 }, // mesma linha, mas fora do navio
+            },
+            {
+              shipPosition: { length: 1, row: 9, col: 9, horizontally: true },
+              attackCoordinates: { row: 8, col: 9 }, // logo acima do navio
+            },
+            {
+              shipPosition: { length: 3, row: 6, col: 2, horizontally: false },
+              attackCoordinates: { row: 9, col: 2 }, // logo abaixo do navio vertical
+            },
+            {
+              shipPosition: { length: 4, row: 2, col: 2, horizontally: true },
+              attackCoordinates: { row: 3, col: 2 }, // mesma coluna, mas linha diferente
+            },
+          ],
       },
-      error: [
+      error: {
+        type: [
+          { row: -1, col: 0, description: 'row is negative' },
+          { row: 0, col: -1, description: 'col is negative' },
+          { row: 10, col: 5, description: 'row is out of bounds' },
+          { row: 4, col: 10, description: 'col is out of bounds' },
+          { row: undefined, col: 0, description: 'row is undefined' },
+          { row: 0, col: null, description: 'col is null' },
+          { row: '2', col: 2, description: 'row is string' },
+          { row: 2, col: '2', description: 'col is string' },
+        ],
+      } 
+    };
 
-      ],
+    function placeMockShip({ gameboard, length, row, col, horizontally, mockShip }) {
+      if(horizontally) {
+        for (let i = col; i < (length + col); i++) {
+          gameboard.defenseBoard[row][i].ship = mockShip;
+        }
+      } else {
+        for (let i = row; i < (length + row); i++) {
+          gameboard.defenseBoard[i][col].ship = mockShip;
+        }
+      }
     }
+
+    describe('Success cases', () => {
+      describe('hit', () => {
+        receiveAttackCases.success.hit.forEach(({ shipPosition, attackCoordinates }, index) => {
+          test(`case ${index}: should trigger ship.hit()`, () => {
+            const { length, row, col, horizontally } = shipPosition;
+            const { row: attackRow, col: attackCol } = attackCoordinates;
+  
+            const mockShip = { hit: jest.fn() };
+  
+            // Position mockShip manually. Can't use placeShip, or it will create an actual instance of Ship
+            placeMockShip({ gameboard, length, row, col, horizontally, mockShip });
+  
+            gameboard.receiveAttack(attackRow, attackCol);
+            expect(mockShip.hit).toHaveBeenCalled();
+          })
+        })
+      });
+  
+      describe('no hit', () => {
+        receiveAttackCases.success.noHit.forEach(({ shipPosition, attackCoordinates }, index) => {
+          test(`case ${index}: should not trigger ship.hit()`, () => {
+            const { length, row, col, horizontally } = shipPosition;
+            const { row: attackRow, col: attackCol } = attackCoordinates;
+  
+            const mockShip = { hit: jest.fn() };
+  
+            // Position mockShip manually. Can't use placeShip, or it will create an actual instance of Ship
+            placeMockShip({ gameboard, length, row, col, horizontally, mockShip });
+  
+            gameboard.receiveAttack(attackRow, attackCol);
+            expect(mockShip.hit).not.toHaveBeenCalled();
+          });
+
+          test(`case ${index}: should push attackCoordinates into gameboard.missedAttacks`, () => {
+            const { length, row, col, horizontally } = shipPosition;
+            const { row: attackRow, col: attackCol } = attackCoordinates;
+  
+            const mockShip = { hit: jest.fn() };
+  
+            // Position mockShip manually. Can't use placeShip, or it will create an actual instance of Ship
+            placeMockShip({ gameboard, length, row, col, horizontally, mockShip });
+  
+            gameboard.receiveAttack(attackRow, attackCol);
+            console.log(gameboard.missedAttacks);
+            expect(gameboard.missedAttacks).toEqual([[attackRow, attackCol]]);
+          })
+        })
+      });
+    });
+
+    describe('Error cases', () => {
+      receiveAttackCases.error.type.forEach(({ row, col, description }) => {
+        test(`${description} should throw`, () => {
+          expect(() => gameboard.receiveAttack(row, col)).toThrow();
+        })
+      })
+    })
   })
 })
