@@ -30,7 +30,7 @@ export default class Gameboard {
     };
     if(this.checkTypeError(length, row, col, horizontally)) throw new Error('Type error!');
     if(length > 10 || length < 0) throw new Error('Size of ship not allowed!');
-    if(this.offLimits(length, row, col, horizontally)) throw new Error('Off limits!');
+    if(this.offLimits(length, row, col, horizontally) || row < 0 || col < 0) throw new Error('Off limits!');
 
     const ship = new Ship(length);
     const positions = [];

@@ -18,12 +18,15 @@ describe('Gameboard class', () => {
           { length: 3, row: 2, col: 5, horizontally: true, expectedDescription: 'ship at [2,5], [2,6], [2,7] should be defined' },
           { length: 4, row: 4, col: 3, horizontally: true, expectedDescription: 'ship at [4,3], [4,4], [4,5], [4,6] should be defined' },
           { length: 1, row: 6, col: 6, horizontally: true, expectedDescription: 'ship at [6,6] should be defined' },
+          { length: 1, row: 9, col: 9, horizontally: true, expectedDescription: 'ship at [9,9] should be defined' },
+          { length: 1, row: 0, col: 9, horizontally: true, expectedDescription: 'ship at [0,9] should be defined' },
         ],
         vertically: [
           { length: 2, row: 0, col: 0, horizontally: false, expectedDescription: 'ship at [0,0], [1,0] should be defined' },
           { length: 3, row: 5, col: 3, horizontally: false, expectedDescription: 'ship at [5,3], [6,3], [7,3] should be defined' },
           { length: 4, row: 2, col: 7, horizontally: false, expectedDescription: 'ship at [2,7], [3,7], [4,7], [5,7] should be defined' },
           { length: 1, row: 9, col: 9, horizontally: false, expectedDescription: 'ship at [9,9] should be defined' },
+          { length: 3, row: 7, col: 9, horizontally: false, expectedDescription: 'ship at [7,9], [8,9], [9,9]' },
         ]
       },
       error: {
@@ -32,11 +35,15 @@ describe('Gameboard class', () => {
             { length: 2, row: 0, col: 9, horizontally: true },
             { length: 3, row: 0, col: 8, horizontally: true },
             { length: 5, row: 3, col: 7, horizontally: true },
+            { length: 1, row: 0, col: 11, horizontally: true },
+            { length: 1, row: 0, col: -11, horizontally: true },
           ],
           vertically: [
             { length: 2, row: 9, col: 0, horizontally: false },
             { length: 3, row: 8, col: 0, horizontally: false },
             { length: 4, row: 7, col: 4, horizontally: false },
+            { length: 1, row: 10, col: 0, horizontally: false },
+            { length: 1, row: -1, col: 0, horizontally: false },
           ],
           sizeNotAllowed: [
             { length: 11, row: 0, col: 9, horizontally: true },
@@ -73,7 +80,6 @@ describe('Gameboard class', () => {
       }
     };
 
-
     describe('Success cases', () => {
       const {success} = placeShipCases;
       describe('Horizontally', () => {
@@ -81,8 +87,11 @@ describe('Gameboard class', () => {
           const testTitle = `placeShip(${length}, ${row}, ${col}, ${horizontally}): ${expectedDescription}`;
           test(testTitle, () => {
             gameboard.placeShip(length, row, col, horizontally);
+            const ship = gameboard.defenseBoard[row][col].ship;
             for (let i = col; i < (length + col); i++) {
               expect(gameboard.defenseBoard[row][i].ship).toBeDefined();
+              // Test if same ship object
+              expect(gameboard.defenseBoard[row][i].ship).toBe(ship);
             }
           })
         })
@@ -92,8 +101,11 @@ describe('Gameboard class', () => {
           const testTitle = `placeShip(${length}, ${row}, ${col}, ${horizontally}): ${expectedDescription}`;
           test(testTitle, () => {
             gameboard.placeShip(length, row, col, horizontally);
+            const ship = gameboard.defenseBoard[row][col].ship;
             for (let i = row; i < (length + row); i++) {
               expect(gameboard.defenseBoard[i][col].ship).toBeDefined();
+              // Test if same ship object
+              expect(gameboard.defenseBoard[i][col].ship).toBe(ship);
             }
           })
         })
