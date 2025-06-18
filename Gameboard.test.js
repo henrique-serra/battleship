@@ -7,7 +7,7 @@ describe('Gameboard class', () => {
   test('should instantiate correctly', () => {
     expect(gameboard).toBeDefined();
     expect(Array.isArray(gameboard.defenseBoard)).toBe(true);
-    expect(Array.isArray(gameboard.attackBoard)).toBe(true);
+    expect(Array.isArray(gameboard.attacks)).toBe(true);
   });
 
   describe('placeShip should place ships correctly', () => {
@@ -37,6 +37,10 @@ describe('Gameboard class', () => {
             { length: 2, row: 9, col: 0, horizontally: false },
             { length: 3, row: 8, col: 0, horizontally: false },
             { length: 4, row: 7, col: 4, horizontally: false },
+          ],
+          sizeNotAllowed: [
+            { length: 11, row: 0, col: 9, horizontally: true },
+            { length: -2, row: 0, col: 9, horizontally: true },
           ]
         },
         typeError: [
@@ -48,6 +52,23 @@ describe('Gameboard class', () => {
             { length: undefined, row: 0, col: 9, missingValue: 'length' },
             { length: 3, row: undefined, col: 4, missingValue: 'row' },
             { length: 3, row: 2, col: undefined, missingValue: 'col' },
+        ],
+        overlappingShip: [
+          {
+            first: { length: 3, row: 2, col: 2, horizontally: true },
+            overlap: { length: 2, row: 2, col: 3, horizontally: true },
+            description: 'should throw when overlapping horizontally'
+          },
+          {
+            first: { length: 3, row: 5, col: 5, horizontally: false },
+            overlap: { length: 2, row: 6, col: 5, horizontally: false },
+            description: 'should throw when overlapping vertically'
+          },
+          {
+            first: { length: 2, row: 0, col: 0, horizontally: true },
+            overlap: { length: 2, row: 0, col: 0, horizontally: false },
+            description: 'should throw when overlapping on same cell [0,0]'
+          }
         ]
       }
     };
@@ -94,6 +115,12 @@ describe('Gameboard class', () => {
             const testTitle = `placeShip(${length}, ${row}, ${col}, ${horizontally}): should throw`;
             test(testTitle, () => expect(() => gameboard.placeShip(length, row, col, horizontally)).toThrow('Off limits!'));
           })
+        });
+        describe('Size not allowed', () => {
+          offLimits.sizeNotAllowed.forEach(({ length, row, col, horizontally }) => {
+            const testTitle = `length of ${length} not allowed`;
+            test(testTitle, () => expect(() => gameboard.placeShip(length, row, col, horizontally)).toThrow('Size of ship not allowed!'));
+          })
         })
       });
       describe('Type error', () => {
@@ -102,6 +129,16 @@ describe('Gameboard class', () => {
           test(testTitle, () => expect(() => gameboard.placeShip(length, row, col, horizontally)).toThrow('Type error!'));
         })
       });
+      describe('Overlapping ships', () => {
+        error.overlappingShip.forEach(({ first, overlap, description }) => {
+          test(description, () => {
+            const firstShipArgs = Object.values(first);
+            const overlapArgs = Object.values(overlap);
+            gameboard.placeShip(...firstShipArgs);
+            expect(() => gameboard.placeShip(...overlapArgs)).toThrow('Position already occupied!');
+          })
+        })
+      })
     })
   })
 })
