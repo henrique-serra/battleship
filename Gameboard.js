@@ -6,7 +6,7 @@ export default class Gameboard {
     this.attackBoard = Array.from({ length: 10 }, (_) => Array.from({ length: 10 }, (_) => ({ hit: false })));
   }
 
-  offLimits(length, row, col, horizontally = true) {
+  offLimits(length, row, col, horizontally) {
     const rowLength = this.defenseBoard[0].length;
     const colLength = this.defenseBoard.length;
     if(horizontally) {
@@ -15,7 +15,20 @@ export default class Gameboard {
     return (row + length) > colLength ? true : false;
   }
 
+  checkTypeError(length, row, col, horizontally = true) {
+    return (
+      typeof length !== 'number' ||
+      typeof row !== 'number' ||
+      typeof col !== 'number' ||
+      typeof horizontally !== 'boolean'
+    )
+  }
+
   placeShip(length, row, col, horizontally = true) {
+    if (arguments.length < 3 || length === undefined || row === undefined || col === undefined) {
+      throw new Error('Missing value(s)!');
+    };
+    if(this.checkTypeError(length, row, col, horizontally)) throw new Error('Type error!');
     if(this.offLimits(length, row, col, horizontally)) throw new Error('Off limits!');
     
     const ship = new Ship(length);
