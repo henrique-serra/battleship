@@ -4,6 +4,7 @@ export default class Gameboard {
   constructor() {
     this.defenseBoard = Array.from({ length: 10 }, (_) => Array.from({ length: 10 }, (_) => ({ ship: null, hitTaken: false })));
     this.missedAttacks = [];
+    this.ships = [];
   }
 
   offLimits(length, row, col, horizontally) {
@@ -51,6 +52,8 @@ export default class Gameboard {
       this.defenseBoard[r][c].ship = ship;
     }
 
+    this.ships.push(ship);
+
     return ship;
   }
 
@@ -70,5 +73,15 @@ export default class Gameboard {
     } else {
       this.missedAttacks.push([row, col]);
     }
+  }
+
+  allShipsSunk() {
+    if(this.ships.length === 0) throw new Error('No ships on gameboard!');    
+
+    for (const ship of this.ships) {
+      if(!ship.isSunk()) return false;
+    }
+
+    return true;
   }
 }

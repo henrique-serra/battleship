@@ -9,6 +9,7 @@ describe('Gameboard class', () => {
     expect(gameboard).toBeDefined();
     expect(Array.isArray(gameboard.defenseBoard)).toBe(true);
     expect(Array.isArray(gameboard.missedAttacks)).toBe(true);
+    expect(Array.isArray(gameboard.ships)).toBe(true);
   });
 
   describe('placeShip should place ships correctly', () => {
@@ -276,7 +277,6 @@ describe('Gameboard class', () => {
             placeMockShip({ gameboard, length, row, col, horizontally, mockShip });
   
             gameboard.receiveAttack(attackRow, attackCol);
-            console.log(gameboard.missedAttacks);
             expect(gameboard.missedAttacks).toEqual([[attackRow, attackCol]]);
           })
         })
@@ -287,6 +287,146 @@ describe('Gameboard class', () => {
       receiveAttackCases.error.type.forEach(({ row, col, description }) => {
         test(`${description} should throw`, () => {
           expect(() => gameboard.receiveAttack(row, col)).toThrow();
+        })
+      })
+    })
+  });
+
+  describe('allShipsSunk method', () => {
+    const allShipsSunkCases = {
+      allSunk: [
+        {
+          ships: [
+            { length: 1, row: 0, col: 0, horizontally: true }
+          ],
+          attacksReceived: [
+            { row: 0, col: 0}
+          ]
+        },
+        // Dois navios pequenos em posições distintas
+        {
+          ships: [
+            { length: 1, row: 0, col: 0, horizontally: true },
+            { length: 1, row: 5, col: 5, horizontally: true }
+          ],
+          attacksReceived: [
+            { row: 0, col: 0 },
+            { row: 5, col: 5 }
+          ]
+        },
+        // Um navio horizontal e um vertical
+        {
+          ships: [
+            { length: 2, row: 1, col: 1, horizontally: true },  // [1,1] e [1,2]
+            { length: 3, row: 4, col: 4, horizontally: false }  // [4,4], [5,4], [6,4]
+          ],
+          attacksReceived: [
+            { row: 1, col: 1 },
+            { row: 1, col: 2 },
+            { row: 4, col: 4 },
+            { row: 5, col: 4 },
+            { row: 6, col: 4 }
+          ]
+        },
+        // Navios de tamanhos variados
+        {
+          ships: [
+            { length: 4, row: 0, col: 0, horizontally: true }, // [0,0] a [0,3]
+            { length: 1, row: 9, col: 9, horizontally: true }  // [9,9]
+          ],
+          attacksReceived: [
+            { row: 0, col: 0 },
+            { row: 0, col: 1 },
+            { row: 0, col: 2 },
+            { row: 0, col: 3 },
+            { row: 9, col: 9 }
+          ]
+        }
+      ],
+      notAllSunk: [
+        // 1. Um navio foi atingido parcialmente
+        {
+          ships: [
+            { length: 3, row: 0, col: 0, horizontally: true }
+          ],
+          attacksReceived: [
+            { row: 0, col: 0 },
+            { row: 0, col: 1 }
+          ],
+          description: 'should return false when ship was only partially hit'
+        },
+        // 2. Dois navios — apenas um afundado
+        {
+          ships: [
+            { length: 1, row: 1, col: 1, horizontally: true },
+            { length: 2, row: 3, col: 3, horizontally: true }
+          ],
+          attacksReceived: [
+            { row: 1, col: 1 },  // navio 1 afundado
+            { row: 3, col: 3 }   // navio 2 parcialmente atingido
+          ],
+          description: 'should return false when one ship remains partially intact'
+        },
+        // 3. Nenhum navio foi atingido
+        {
+          ships: [
+            { length: 2, row: 0, col: 0, horizontally: true },
+            { length: 3, row: 2, col: 2, horizontally: false }
+          ],
+          attacksReceived: [
+            { row: 9, col: 9 }, // ataque completamente fora
+            { row: 4, col: 4 }
+          ],
+          description: 'should return false when no ships were hit'
+        },
+        // 4. Um dos navios está afundado, o outro não recebeu ataque
+        {
+          ships: [
+            { length: 1, row: 1, col: 1, horizontally: true },
+            { length: 2, row: 5, col: 5, horizontally: false }
+          ],
+          attacksReceived: [
+            { row: 1, col: 1 } // só o primeiro afundado
+          ],
+          description: 'should return false when one ship was not touched'
+        }
+      ],
+      errors: [
+        {
+          ships: [],  // Nenhum navio colocado
+          attacksReceived: [],
+          description: 'should throw if no ships were placed',
+          errorMsg: 'No ships on gameboard!'
+        }
+      ]
+    };
+
+    describe('all ships sunk', () => {
+      allShipsSunkCases.allSunk.forEach(({ ships, attacksReceived }, index) => {
+        test(`case ${index} should return true`, () => {
+          ships.forEach((ship) => gameboard.placeShip(...Object.values(ship)));
+          attacksReceived.forEach(({ row, col }) => gameboard.receiveAttack(row, col));
+          expect(gameboard.allShipsSunk()).toBe(true);
+        })
+      })
+    });
+
+    describe('not all ships sunk', () => {
+      allShipsSunkCases.notAllSunk.forEach(({ ships, attacksReceived, description }) => {
+        test(description, () => {
+          ships.forEach((ship) => gameboard.placeShip(...Object.values(ship)));
+          attacksReceived.forEach(({ row, col }) => gameboard.receiveAttack(row, col));
+          expect(gameboard.allShipsSunk()).toBe(false);
+        })
+      })
+    })
+
+    describe('error cases', () => {
+      allShipsSunkCases.errors.forEach(({ ships, attacksReceived, description, errorMsg }) => {
+        test(description, () => {
+          ships.forEach((ship) => gameboard.placeShip(...Object.values(ship)));
+          attacksReceived.forEach(({ row, col }) => gameboard.receiveAttack(row, col));
+          expect(() => gameboard.allShipsSunk()).toThrow(errorMsg);
         })
       })
     })
