@@ -51,4 +51,8 @@ export default class Gameboard {
       this.defenseBoard[r][c].ship = ship;
     }
   }
+
+  receiveAttack(row, col) {
+    
+  }
 }

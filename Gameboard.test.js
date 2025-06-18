@@ -152,5 +152,27 @@ describe('Gameboard class', () => {
         })
       })
     })
+  });
+
+  describe('receiveAttack', () => {
+    const testCases = {
+      success: {
+        hit: [
+          { 
+            shipPosition: { length: 2, row: 0, col: 0, horizontally: true },
+            attackCoordinates: { row: 0, col: 0 },
+          }
+        ],
+        noHit: [
+          { 
+            shipPosition: { length: 2, row: 0, col: 0, horizontally: true },
+            attackCoordinates: { row: 5, col: 5 },
+          }
+        ]
+      },
+      error: [
+
+      ],
+    }
   })
 })
