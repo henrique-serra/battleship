@@ -1,4 +1,5 @@
 import Controller from "./Controller";
+import Player from "./Player";
 
 let c;
 beforeEach(() => c = new Controller());
@@ -14,6 +15,84 @@ describe('Controller', () => {
       c.attack(c.player2, 3, 3);
       expect(spy).toHaveBeenCalledWith(3, 3);
       spy.mockRestore();
+    });
+
+    test('should add attack coordinates to attacker attacks array when player1 attacks player2', () => {
+      // Player1 ataca Player2
+      c.attack(c.player2, 5, 7);
+      
+      // O ataque deve ser registrado na array de ataques do player1
+      expect(c.player1.attacks).toContainEqual([5, 7]);
+      expect(c.player1.attacks.length).toBe(1);
+      
+      // Player2 não deve ter ataques registrados
+      expect(c.player2.attacks.length).toBe(0);
+    });
+
+    test('should add attack coordinates to attacker attacks array when player2 attacks player1', () => {
+      // Player2 ataca Player1
+      c.attack(c.player1, 2, 4);
+      
+      // O ataque deve ser registrado na array de ataques do player2
+      expect(c.player2.attacks).toContainEqual([2, 4]);
+      expect(c.player2.attacks.length).toBe(1);
+      
+      // Player1 não deve ter ataques registrados
+      expect(c.player1.attacks.length).toBe(0);
+    });
+
+    test('should accumulate multiple attacks in the attacker attacks array', () => {
+      // Player1 faz múltiplos ataques
+      c.attack(c.player2, 0, 0);
+      c.attack(c.player2, 1, 1);
+      c.attack(c.player2, 9, 9);
+      
+      expect(c.player1.attacks).toHaveLength(3);
+      expect(c.player1.attacks).toContainEqual([0, 0]);
+      expect(c.player1.attacks).toContainEqual([1, 1]);
+      expect(c.player1.attacks).toContainEqual([9, 9]);
+    });
+
+    test('should handle alternating attacks correctly', () => {
+      // Ataques alternados
+      c.attack(c.player2, 1, 2); // Player1 ataca
+      c.attack(c.player1, 3, 4); // Player2 ataca
+      c.attack(c.player2, 5, 6); // Player1 ataca novamente
+      
+      // Verificar ataques do Player1
+      expect(c.player1.attacks).toHaveLength(2);
+      expect(c.player1.attacks).toContainEqual([1, 2]);
+      expect(c.player1.attacks).toContainEqual([5, 6]);
+      
+      // Verificar ataques do Player2
+      expect(c.player2.attacks).toHaveLength(1);
+      expect(c.player2.attacks).toContainEqual([3, 4]);
+    });
+
+    test('should maintain attack history even when attacking same position', () => {
+      // Atacar a mesma posição múltiplas vezes (mesmo que não seja permitido no jogo real)
+      c.attack(c.player2, 4, 4);
+      c.attack(c.player2, 4, 4);
+      
+      // Ambos os ataques devem ser registrados
+      expect(c.player1.attacks).toHaveLength(2);
+      expect(c.player1.attacks.filter(attack => 
+        attack[0] === 4 && attack[1] === 4
+      )).toHaveLength(2);
+    });
+
+    test('should work with custom named players', () => {
+      const customController = new Controller(
+        new Player('Alice', 'real'),
+        new Player('Bob', 'computer')
+      );
+      
+      // Alice ataca Bob
+      customController.attack(customController.player2, 7, 8);
+      
+      expect(customController.player1.attacks).toContainEqual([7, 8]);
+      expect(customController.player1.name).toBe('Alice');
+      expect(customController.player2.attacks).toHaveLength(0);
     });
   });
 
@@ -843,8 +922,8 @@ describe('Controller', () => {
         // Arrange: simula um jogo completo
         c.player1.gameboard.placeShip(2, 0, 0, true);
         c.player2.gameboard.placeShip(2, 1, 1, false);
-        c.player1.attacks = [{ row: 1, col: 1 }];
-        c.player2.attacks = [{ row: 0, col: 0 }];
+        c.attack(c.player2, 1, 1);
+        c.attack(c.player1, 0, 0);
         c.turn = c.player2;
 
         // Act: limpa o jogo
@@ -855,7 +934,6 @@ describe('Controller', () => {
           c.player1.gameboard.placeShip(3, 0, 0, true);
           c.player2.gameboard.placeShip(3, 2, 2, false);
           c.attack(c.player2, 0, 0);
-          c.player1.attacks.push({ row: 0, col: 0 });
         }).not.toThrow();
 
         // Verifica se o novo estado foi aplicado corretamente

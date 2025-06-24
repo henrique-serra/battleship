@@ -9,7 +9,10 @@ class Controller {
 
   
   attack(attacked, row, col) {
+    const attacker = attacked === this.player1 ? this.player2 : this.player1;
+    
     attacked.gameboard.receiveAttack(row, col);
+    attacker.attacks.push([row, col]);
   }
   
   getWinner() {
