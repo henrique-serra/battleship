@@ -7,7 +7,6 @@ class Controller {
     this.turn = this.player1;
   }
 
-  
   attack(attacked, row, col) {
     const attacker = attacked === this.player1 ? this.player2 : this.player1;
     
