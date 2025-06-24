@@ -43,7 +43,12 @@ class Controller {
   }
 
   clearGame() {
-    
+    this.player1.gameboard.resetGameboard();
+    this.player2.gameboard.resetGameboard();
+    this.player1.attacks = [];
+    this.player2.attacks = [];
+
+    this.turn = this.player1;
   }
 }
 
