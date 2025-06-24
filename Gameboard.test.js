@@ -430,5 +430,213 @@ describe('Gameboard class', () => {
         })
       })
     })
-  })
+  });
+
+  describe('resetGameboard method', () => {
+    test('should reset defenseBoard to initial state', () => {
+      // Arrange: modify the board first
+      gameboard.placeShip(3, 2, 2, true);
+      gameboard.receiveAttack(5, 5); // miss
+      gameboard.receiveAttack(2, 2); // hit
+      
+      // Act
+      gameboard.resetGameboard();
+      
+      // Assert: check that defenseBoard is back to initial state
+      expect(gameboard.defenseBoard).toHaveLength(10);
+      expect(gameboard.defenseBoard[0]).toHaveLength(10);
+      
+      // Verify all cells are reset
+      for (let row = 0; row < 10; row++) {
+        for (let col = 0; col < 10; col++) {
+          expect(gameboard.defenseBoard[row][col]).toEqual({
+            ship: null,
+            hitTaken: false
+          });
+        }
+      }
+    });
+
+    test('should clear missedAttacks array', () => {
+      // Arrange: add some missed attacks
+      gameboard.placeShip(2, 0, 0, true);
+      gameboard.receiveAttack(5, 5); // miss
+      gameboard.receiveAttack(7, 3); // miss
+      gameboard.receiveAttack(9, 9); // miss
+      
+      expect(gameboard.missedAttacks).toHaveLength(3);
+      
+      // Act
+      gameboard.resetGameboard();
+      
+      // Assert
+      expect(gameboard.missedAttacks).toEqual([]);
+      expect(gameboard.missedAttacks).toHaveLength(0);
+    });
+
+    test('should clear ships array', () => {
+      // Arrange: place multiple ships
+      const ship1 = gameboard.placeShip(4, 0, 0, true);
+      const ship2 = gameboard.placeShip(3, 2, 2, false);
+      const ship3 = gameboard.placeShip(2, 5, 5, true);
+      const ship4 = gameboard.placeShip(1, 9, 9, true);
+      
+      expect(gameboard.ships).toHaveLength(4);
+      expect(gameboard.ships).toContain(ship1);
+      expect(gameboard.ships).toContain(ship2);
+      expect(gameboard.ships).toContain(ship3);
+      expect(gameboard.ships).toContain(ship4);
+      
+      // Act
+      gameboard.resetGameboard();
+      
+      // Assert
+      expect(gameboard.ships).toEqual([]);
+      expect(gameboard.ships).toHaveLength(0);
+    });
+
+    test('should completely reset a complex game state', () => {
+      // Arrange: create a complex game state
+      // Place ships
+      const ship1 = gameboard.placeShip(4, 0, 0, true);   // [0,0] to [0,3]
+      const ship2 = gameboard.placeShip(3, 2, 2, false);  // [2,2] to [4,2]
+      const ship3 = gameboard.placeShip(2, 6, 6, true);   // [6,6] to [6,7]
+      const ship4 = gameboard.placeShip(1, 9, 9, true);   // [9,9]
+      
+      // Make attacks (hits and misses)
+      gameboard.receiveAttack(0, 0); // hit ship1
+      gameboard.receiveAttack(0, 1); // hit ship1
+      gameboard.receiveAttack(2, 2); // hit ship2
+      gameboard.receiveAttack(6, 6); // hit ship3
+      gameboard.receiveAttack(9, 9); // hit ship4 (sunk)
+      
+      gameboard.receiveAttack(1, 1); // miss
+      gameboard.receiveAttack(3, 3); // miss
+      gameboard.receiveAttack(5, 5); // miss
+      gameboard.receiveAttack(8, 8); // miss
+      
+      // Verify complex state exists
+      expect(gameboard.ships).toHaveLength(4);
+      expect(gameboard.missedAttacks).toHaveLength(4);
+      expect(gameboard.defenseBoard[0][0].ship).toBe(ship1);
+      expect(gameboard.defenseBoard[2][2].ship).toBe(ship2);
+      
+      // Act
+      gameboard.resetGameboard();
+      
+      // Assert: everything should be reset
+      expect(gameboard.ships).toEqual([]);
+      expect(gameboard.missedAttacks).toEqual([]);
+      
+      // Verify all board positions are reset
+      for (let row = 0; row < 10; row++) {
+        for (let col = 0; col < 10; col++) {
+          expect(gameboard.defenseBoard[row][col]).toEqual({
+            ship: null,
+            hitTaken: false
+          });
+        }
+      }
+    });
+
+    test('should allow placing new ships after reset', () => {
+      // Arrange: fill board with ships
+      gameboard.placeShip(4, 0, 0, true);
+      gameboard.placeShip(3, 2, 2, false);
+      gameboard.placeShip(2, 6, 6, true);
+      
+      // Act: reset and place new ships
+      gameboard.resetGameboard();
+      
+      // Assert: should be able to place ships in previously occupied positions
+      expect(() => {
+        gameboard.placeShip(5, 0, 0, true);  // Same position as before
+        gameboard.placeShip(3, 2, 2, true);  // Same starting position, different orientation
+        gameboard.placeShip(1, 6, 6, false); // Same position, different orientation
+      }).not.toThrow();
+      
+      expect(gameboard.ships).toHaveLength(3);
+      expect(gameboard.defenseBoard[0][0].ship).toBeDefined();
+      expect(gameboard.defenseBoard[2][2].ship).toBeDefined();
+      expect(gameboard.defenseBoard[6][6].ship).toBeDefined();
+    });
+
+    test('should reset even when called on empty gameboard', () => {
+      // Arrange: start with fresh gameboard (no ships, no attacks)
+      const initialShipsLength = gameboard.ships.length;
+      const initialMissedAttacksLength = gameboard.missedAttacks.length;
+      
+      expect(initialShipsLength).toBe(0);
+      expect(initialMissedAttacksLength).toBe(0);
+      
+      // Act
+      gameboard.resetGameboard();
+      
+      // Assert: should still work without errors
+      expect(gameboard.ships).toEqual([]);
+      expect(gameboard.missedAttacks).toEqual([]);
+      expect(gameboard.defenseBoard).toHaveLength(10);
+      expect(gameboard.defenseBoard[0]).toHaveLength(10);
+    });
+
+    test('should reset hitTaken property for all cells', () => {
+      // Arrange: place ship and attack it
+      gameboard.placeShip(3, 1, 1, true);
+      gameboard.receiveAttack(1, 1); // hit
+      
+      // Manually set hitTaken to true for testing
+      gameboard.defenseBoard[1][1].hitTaken = true;
+      gameboard.defenseBoard[5][5].hitTaken = true;
+      
+      // Act
+      gameboard.resetGameboard();
+      
+      // Assert: all hitTaken should be false
+      for (let row = 0; row < 10; row++) {
+        for (let col = 0; col < 10; col++) {
+          expect(gameboard.defenseBoard[row][col].hitTaken).toBe(false);
+        }
+      }
+    });
+
+    test('should be idempotent - multiple calls should have same effect', () => {
+      // Arrange: create some state
+      gameboard.placeShip(2, 0, 0, true);
+      gameboard.receiveAttack(5, 5);
+      
+      // Act: call reset multiple times
+      gameboard.resetGameboard();
+      gameboard.resetGameboard();
+      gameboard.resetGameboard();
+      
+      // Assert: should be same as calling once
+      expect(gameboard.ships).toEqual([]);
+      expect(gameboard.missedAttacks).toEqual([]);
+      
+      for (let row = 0; row < 10; row++) {
+        for (let col = 0; col < 10; col++) {
+          expect(gameboard.defenseBoard[row][col]).toEqual({
+            ship: null,
+            hitTaken: false
+          });
+        }
+      }
+    });
+
+    test('should maintain board dimensions after reset', () => {
+      // Arrange: place ships and attacks
+      gameboard.placeShip(4, 0, 0, true);
+      gameboard.receiveAttack(5, 5);
+      
+      // Act
+      gameboard.resetGameboard();
+      
+      // Assert: board should maintain 10x10 dimensions
+      expect(gameboard.defenseBoard).toHaveLength(10);
+      gameboard.defenseBoard.forEach(row => {
+        expect(row).toHaveLength(10);
+      });
+    });
+
+  });
 })

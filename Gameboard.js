@@ -84,4 +84,10 @@ export default class Gameboard {
 
     return true;
   }
+
+  resetGameboard() {
+    this.defenseBoard = Array.from({ length: 10 }, (_) => Array.from({ length: 10 }, (_) => ({ ship: null, hitTaken: false })));
+    this.missedAttacks = [];
+    this.ships = [];
+  }
 }
