@@ -6,5 +6,7 @@ export default class Player {
     this.type = type;
     this.gameboard = new Gameboard();
     this.attacks = [];
+    this.victories = 0;
+    this.defeats = 0;
   }
 }
