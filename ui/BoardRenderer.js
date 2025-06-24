@@ -24,6 +24,10 @@ export default class BoardRenderer {
   }
 
   removeClass(board, action, row, col) {
+    if (!action || typeof action !== 'string' || action.trim() === '') throw new Error('Invalid action parameter');
+    if(!['ship', 'hit', 'miss', 'sunk'].includes(action)) throw new Error('Action not recognized');
     
+    const cell = this.getCell(board, row, col);
+    if(cell.classList.contains(action)) cell.classList.remove(action);
   }
 }
