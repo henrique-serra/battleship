@@ -79,31 +79,86 @@ describe('BoardRenderer', () => {
         { action: 'sunk', row: 5, col: 9, description: 'should work at right edge middle' }
       ],
       
-      multiple: [
-        { 
-          sequence: [
-            { action: 'ship', row: 1, col: 1 },
-            { action: 'hit', row: 1, col: 1 }
-          ],
-          description: 'should be able to apply hit to a cell that already has ship class'
-        },
-        {
-          sequence: [
-            { action: 'ship', row: 2, col: 2 },
-            { action: 'hit', row: 2, col: 2 },
-            { action: 'sunk', row: 2, col: 2 }
-          ],
-          description: 'should be able to apply sunk to a cell that has ship and hit classes'
-        }
-      ]
+      multiple: {
+        uniqueActions: [
+          { 
+            sequence: [
+              { action: 'ship', row: 1, col: 1 },
+              { action: 'hit', row: 1, col: 1 }
+            ],
+            description: 'should be able to apply hit to a cell that already has ship class'
+          },
+          {
+            sequence: [
+              { action: 'ship', row: 2, col: 2 },
+              { action: 'hit', row: 2, col: 2 },
+              { action: 'sunk', row: 2, col: 2 }
+            ],
+            description: 'should be able to apply sunk to a cell that has ship and hit classes'
+          },
+        ],
+        repeatedActions: [
+          {
+            sequence: [
+              { action: 'ship', row: 3, col: 3 },
+              { action: 'ship', row: 3, col: 3 }
+            ],
+            description: 'should handle repeated ship placement on same cell'
+          },
+          {
+            sequence: [
+              { action: 'miss', row: 4, col: 4 },
+              { action: 'miss', row: 4, col: 4 }
+            ],
+            description: 'should handle repeated miss action on same cell'
+          },
+          {
+            sequence: [
+              { action: 'ship', row: 5, col: 5 },
+              { action: 'hit', row: 5, col: 5 },
+              { action: 'hit', row: 5, col: 5 }
+            ],
+            description: 'should handle repeated hit action on same cell'
+          },
+          {
+            sequence: [
+              { action: 'ship', row: 6, col: 6 },
+              { action: 'hit', row: 6, col: 6 },
+              { action: 'sunk', row: 6, col: 6 },
+              { action: 'sunk', row: 6, col: 6 }
+            ],
+            description: 'should handle repeated sunk action on same cell'
+          },
+          {
+            sequence: [
+              { action: 'hit', row: 7, col: 7 },
+              { action: 'hit', row: 7, col: 7 },
+              { action: 'hit', row: 7, col: 7 }
+            ],
+            description: 'should handle multiple repeated hit actions on same cell'
+          },
+          {
+            sequence: [
+              { action: 'miss', row: 8, col: 8 },
+              { action: 'miss', row: 8, col: 8 },
+              { action: 'miss', row: 8, col: 8 },
+              { action: 'miss', row: 8, col: 8 }
+            ],
+            description: 'should handle multiple repeated miss actions on same cell'
+          }
+        ]
+      }
     };
     
     describe('Success cases', () => {
       Object.values(insertClassCases.success).flat().forEach(({ action, row, col, description }) => {
         test(`insertClass(playerBoardEl, ${action}, ${row}, ${col}) ${description}`, () => {
-          const cell = boardRenderer.getCell(playerBoardEl, row, col);
+          const cellPlayer = boardRenderer.getCell(playerBoardEl, row, col);
+          const cellEnemy = boardRenderer.getCell(enemyBoardEl, row, col);
           boardRenderer.insertClass(playerBoardEl, action, row, col);
-          expect(cell.classList.contains(action)).toBe(true);
+          boardRenderer.insertClass(enemyBoardEl, action, row, col);
+          expect(cellPlayer.classList.contains(action)).toBe(true);
+          expect(cellEnemy.classList.contains(action)).toBe(true);
         })
       });
     });
@@ -114,17 +169,74 @@ describe('BoardRenderer', () => {
           expect(() => boardRenderer.insertClass(playerBoardEl, action, row, col)).toThrow(errorMsg);
         })
       })
+    });
+
+    describe('Edge cases', () => {
+      insertClassCases.edge.forEach(({ action, row, col, description }) => {
+        test(description, () => {
+          const cellPlayer = boardRenderer.getCell(playerBoardEl, row, col);
+          const cellEnemy = boardRenderer.getCell(enemyBoardEl, row, col);
+          boardRenderer.insertClass(playerBoardEl, action, row, col);
+          boardRenderer.insertClass(enemyBoardEl, action, row, col);
+          expect(cellPlayer.classList.contains(action)).toBe(true);
+          expect(cellEnemy.classList.contains(action)).toBe(true);
+        })
+      })
+    });
+
+    describe('Multiple hits', () => {
+      describe('Unique actions', () => {
+        insertClassCases.multiple.uniqueActions.forEach(({ sequence, description }) => {
+          test(description, () => {
+            const { row, col } = sequence[0];
+            const cellPlayer = boardRenderer.getCell(playerBoardEl, row, col);
+            const cellEnemy = boardRenderer.getCell(enemyBoardEl, row, col);
+  
+            sequence.forEach(({ action, row, col }) => {
+              boardRenderer.insertClass(playerBoardEl, action, row, col);
+              boardRenderer.insertClass(enemyBoardEl, action, row, col);
+            });
+            
+            sequence.forEach(({ action }) => {
+              expect(cellPlayer.classList.contains(action)).toBe(true);
+              expect(cellEnemy.classList.contains(action)).toBe(true);
+            })
+          })
+        });
+      });
+
+      describe('Repeated actions', () => {
+        insertClassCases.multiple.repeatedActions.forEach(({ sequence, description }) => {
+          test(description, () => {
+            let actions = [];
+            const { row, col } = sequence[0];
+            const cellPlayer = boardRenderer.getCell(playerBoardEl, row, col);
+            const cellEnemy = boardRenderer.getCell(enemyBoardEl, row, col);
+            
+            sequence.forEach(({ action, row, col }) => {
+              boardRenderer.insertClass(playerBoardEl, action, row, col);
+              boardRenderer.insertClass(enemyBoardEl, action, row, col);
+              actions.push(action);
+            });
+            
+            const playerClasses = [...cellPlayer.classList];
+            const enemyClasses = [...cellEnemy.classList];
+            actions = [...new Set(actions)];
+
+            expect(playerClasses).toEqual(['grid-cell', ...actions]);
+            expect(enemyClasses).toEqual(['grid-cell', ...actions]);
+          })
+        });
+      })
     })
   })
-  
 
   // Auxiliary methods
   describe('Auxiliary methods!', () => {
     describe('getCell', () => {
-      describe('getCell - comprehensive position testing', () => {
+      test('getCell - comprehensive position testing', () => {
         for (let row = 0; row < 10; row++) {
           for (let col = 0; col < 10; col++) {
-            test(`row ${row}, col ${col}`, () => {
               const cellPlayer = boardRenderer.getCell(playerBoardEl, row, col);
               expect(cellPlayer).toBeTruthy();
               expect(cellPlayer.tagName).toBe('DIV');
@@ -135,7 +247,6 @@ describe('BoardRenderer', () => {
               expect(cellEnemy.tagName).toBe('DIV');
               expect(cellEnemy.classList.contains('grid-cell')).toBe(true);
               expect(cellEnemy.classList.contains('coordinate')).toBe(false);
-            })
           }
         }
       });
