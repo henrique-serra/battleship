@@ -2,10 +2,10 @@
  * @jest-environment jsdom
  */
 
-import { error } from 'console';
 import BoardRenderer from './BoardRenderer.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import Gameboard from '../Gameboard.js';
 
 let playerBoardEl;
 let enemyBoardEl;
@@ -19,6 +19,88 @@ describe('BoardRenderer', () => {
     playerBoardEl = document.querySelector('#player-board');
     enemyBoardEl = document.querySelector('#enemy-board');
     boardRenderer = new BoardRenderer(playerBoardEl, enemyBoardEl);
+  });
+
+  describe('createGameBoardsHTML', () => {
+    let htmlString, container, playerBoard, enemyBoard;
+    beforeEach(() => {
+      htmlString = boardRenderer.createGameBoardsHTML();
+      container = document.createElement('div');
+      container.innerHTML = htmlString;
+      playerBoard = container.querySelector('#player-board');
+      enemyBoard = container.querySelector('#enemy-board');
+    });
+
+    describe('HTML structure validation', () => {
+      test('should return valid HTML string', () => {
+        expect(typeof htmlString).toBe('string');
+        expect(htmlString.trim()).not.toBe('');
+        expect(htmlString).toContain('<div class="game-boards">');
+      });
+
+      test('should create main container with correct class', () => {
+        const gameBoards = container.querySelector('.game-boards');
+        expect(gameBoards).toBeTruthy();
+        expect(gameBoards.tagName).toBe('DIV');
+      });
+
+      test('should create exactly 2 board sections', () => {
+        const boardSections = container.querySelectorAll('.board-section');
+        expect(boardSections).toHaveLength(2);
+      });
+
+      test('should create both player and enemy boards with correct IDs', () => {
+        expect(playerBoard).toBeTruthy();
+        expect(enemyBoard).toBeTruthy();
+        expect(playerBoard.classList.contains('grid')).toBe(true);
+        expect(enemyBoard.classList.contains('grid')).toBe(true);
+      });
+
+      test('should have correct board titles', () => {
+        const titles = container.querySelectorAll('.board-title');
+        expect(titles).toHaveLength(2);
+        expect(titles[0].textContent).toBe('🛡️ Sua Frota');
+        expect(titles[1].textContent).toBe('🎯 Campo Inimigo');
+      });
+    });
+
+    describe('Grid Cell structure', () => {
+      test('should create 121 .grid-cells per board', () => {
+        const playerCells = playerBoard.querySelectorAll('.grid-cell');
+        const enemyCells = enemyBoard.querySelectorAll('.grid-cell');
+
+        expect(playerCells).toHaveLength(121);
+        expect(enemyCells).toHaveLength(121);
+      });
+
+      test('should create 21 .grid-cell.coordinate cells per board', () => {
+        const playerCoordinates = playerBoard.querySelectorAll('.grid-cell.coordinate');
+        const enemyCoordinates = enemyBoard.querySelectorAll('.grid-cell.coordinate');
+
+        expect(playerCoordinates).toHaveLength(21);
+        expect(enemyCoordinates).toHaveLength(21);
+      });
+
+      test('should create 100 playable cells per board', () => {
+        const playerGameCells = playerBoard.querySelectorAll('[data-row][data-col]');
+        const enemyGameCells = enemyBoard.querySelectorAll('[data-row][data-col]');
+
+        expect(playerGameCells).toHaveLength(100);
+        expect(enemyGameCells).toHaveLength(100);
+      });
+
+      describe('Coordinate Headers', () => {
+        test('should have correct column headers', () => {
+          const expectedColumns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+
+          expectedColumns.forEach((col, index) => {
+            const headerCell = playerBoard.querySelectorAll('.grid-cell')[index + 1];
+            expect(headerCell.textContent).toBe(col);
+            expect(headerCell.classList.contains('coordinate')).toBe(true);
+          })
+        })
+      })
+    })
   })
 
   describe('insertClass', () => {
@@ -533,18 +615,6 @@ describe('BoardRenderer', () => {
           }
         }
       });
-
-      describe('specific positions', () => {
-        test('should return the correct cell element for valid coordinates', () => {
-          const testCoordinates = [
-            { row: 0, col: 0, expectedIndex: 13 },    // primeira célula do grid
-            { row: 0, col: 9, expectedIndex: 22 },    // última célula da primeira linha
-            { row: 9, col: 0, expectedIndex: 112 },   // primeira célula da última linha
-            { row: 9, col: 9, expectedIndex: 121 },   // última célula do grid
-            { row: 5, col: 5, expectedIndex: 68 }     // célula central
-          ]
-        })
-      })
 
       describe('getCell - errorCases', () => {
         const errorCases = {
