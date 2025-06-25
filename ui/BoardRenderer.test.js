@@ -534,6 +534,18 @@ describe('BoardRenderer', () => {
         }
       });
 
+      describe('specific positions', () => {
+        test('should return the correct cell element for valid coordinates', () => {
+          const testCoordinates = [
+            { row: 0, col: 0, expectedIndex: 13 },    // primeira célula do grid
+            { row: 0, col: 9, expectedIndex: 22 },    // última célula da primeira linha
+            { row: 9, col: 0, expectedIndex: 112 },   // primeira célula da última linha
+            { row: 9, col: 9, expectedIndex: 121 },   // última célula do grid
+            { row: 5, col: 5, expectedIndex: 68 }     // célula central
+          ]
+        })
+      })
+
       describe('getCell - errorCases', () => {
         const errorCases = {
           invalidCoordinates: {
