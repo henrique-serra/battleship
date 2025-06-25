@@ -1,4 +1,4 @@
-import Player from "./Player";
+import Player from "./Player.js";
 
 class Controller {
   constructor(player1 = new Player(), player2 = new Player('Player 2', 'computer')) {
