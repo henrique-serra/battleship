@@ -40,10 +40,46 @@ export default class BoardRenderer {
         <div class="board-section">
           <h2 class="board-title">🛡️ Sua Frota</h2>
           ${createGrid('player-board')}
+          <div class="ships-remaining">
+            <div class="ship-type">
+                <span class="ship-name">🚢 Porta-aviões (5)</span>
+                <span class="ship-count">1</span>
+            </div>
+            <div class="ship-type">
+                <span class="ship-name">🛥️ Cruzador (4)</span>
+                <span class="ship-count">1</span>
+            </div>
+            <div class="ship-type">
+                <span class="ship-name">⛵ Contratorpedeiro (3)</span>
+                <span class="ship-count">2</span>
+            </div>
+            <div class="ship-type">
+                <span class="ship-name">🚤 Submarino (2)</span>
+                <span class="ship-count">1</span>
+            </div>
+          </div>
         </div>
         <div class="board-section">
           <h2 class="board-title">🎯 Campo Inimigo</h2>
           ${createGrid('enemy-board')}
+          <div class="ships-remaining">
+            <div class="ship-type">
+                <span class="ship-name">🚢 Porta-aviões (5)</span>
+                <span class="ship-count">1</span>
+            </div>
+            <div class="ship-type">
+                <span class="ship-name">🛥️ Cruzador (4)</span>
+                <span class="ship-count">1</span>
+            </div>
+            <div class="ship-type">
+                <span class="ship-name">⛵ Contratorpedeiro (3)</span>
+                <span class="ship-count">2</span>
+            </div>
+            <div class="ship-type">
+                <span class="ship-name">🚤 Submarino (2)</span>
+                <span class="ship-count">1</span>
+            </div>
+          </div>
         </div>
       </div>
     `;
