@@ -1,4 +1,5 @@
 import Gameboard from './Gameboard.js';
+import Ship from './Ship.js';
 
 let gameboard;
 
@@ -86,10 +87,10 @@ describe('Gameboard class', () => {
       const {success} = placeShipCases;
       describe('Horizontally', () => {
         success.horizontally.forEach(({ length, row, col, horizontally, expectedDescription }) => {
-          const testTitle = `placeShip(${length}, ${row}, ${col}, ${horizontally}): ${expectedDescription}`;
+          const ship = new Ship(length);
+          const testTitle = `placeShip(${ship.type} of length ${ship.length}, ${row}, ${col}, ${horizontally}): ${expectedDescription}`;
           test(testTitle, () => {
-            gameboard.placeShip(length, row, col, horizontally);
-            const ship = gameboard.defenseBoard[row][col].ship;
+            gameboard.placeShip(ship, row, col, horizontally);
             for (let i = col; i < (length + col); i++) {
               expect(gameboard.defenseBoard[row][i].ship).toBeDefined();
               // Test if same ship object
@@ -100,10 +101,10 @@ describe('Gameboard class', () => {
       });
       describe('Vertically', () => {
         success.vertically.forEach(({ length, row, col, horizontally, expectedDescription }) => {
-          const testTitle = `placeShip(${length}, ${row}, ${col}, ${horizontally}): ${expectedDescription}`;
+          const ship = new Ship(length);
+          const testTitle = `placeShip(${ship.type} of length ${ship.length}, ${row}, ${col}, ${horizontally}): ${expectedDescription}`;
           test(testTitle, () => {
-            gameboard.placeShip(length, row, col, horizontally);
-            const ship = gameboard.defenseBoard[row][col].ship;
+            gameboard.placeShip(ship, row, col, horizontally);
             for (let i = row; i < (length + row); i++) {
               expect(gameboard.defenseBoard[i][col].ship).toBeDefined();
               // Test if same ship object
@@ -120,36 +121,28 @@ describe('Gameboard class', () => {
         const { offLimits } = error;
         describe('Horizontally', () => {
           offLimits.horizontally.forEach(({ length, row, col, horizontally }) => {
-            const testTitle = `placeShip(${length}, ${row}, ${col}, ${horizontally}): should throw`;
-            test(testTitle, () => expect(() => gameboard.placeShip(length, row, col, horizontally)).toThrow('Off limits!'));
+            const ship = new Ship(length);
+            const testTitle = `placeShip(${ship.type}, ${row}, ${col}, ${horizontally}): should throw`;
+            test(testTitle, () => expect(() => gameboard.placeShip(ship, row, col, horizontally)).toThrow('Off limits!'));
           });
         });
         describe('Vertically', () => {
           offLimits.vertically.forEach(({ length, row, col, horizontally }) => {
-            const testTitle = `placeShip(${length}, ${row}, ${col}, ${horizontally}): should throw`;
-            test(testTitle, () => expect(() => gameboard.placeShip(length, row, col, horizontally)).toThrow('Off limits!'));
+            const ship = new Ship(length);
+            const testTitle = `placeShip(${ship.type}, ${row}, ${col}, ${horizontally}): should throw`;
+            test(testTitle, () => expect(() => gameboard.placeShip(ship, row, col, horizontally)).toThrow('Off limits!'));
           })
         });
-        describe('Size not allowed', () => {
-          offLimits.sizeNotAllowed.forEach(({ length, row, col, horizontally }) => {
-            const testTitle = `length of ${length} not allowed`;
-            test(testTitle, () => expect(() => gameboard.placeShip(length, row, col, horizontally)).toThrow('Size of ship not allowed!'));
-          })
-        })
-      });
-      describe('Type error', () => {
-        error.typeError.forEach(({ length, row, col, horizontally }) => {
-          const testTitle = `placeShip(${length}, ${row}, ${col}, ${horizontally}): should throw`;
-          test(testTitle, () => expect(() => gameboard.placeShip(length, row, col, horizontally)).toThrow('Type error!'));
-        })
       });
       describe('Overlapping ships', () => {
         error.overlappingShip.forEach(({ first, overlap, description }) => {
           test(description, () => {
-            const firstShipArgs = Object.values(first);
-            const overlapArgs = Object.values(overlap);
-            gameboard.placeShip(...firstShipArgs);
-            expect(() => gameboard.placeShip(...overlapArgs)).toThrow('Position already occupied!');
+            const { length: firstShipLength, ...firstShipOtherProps } = first;
+            const firstShip = new Ship(firstShipLength);
+            const { length: secondShipLength, ...secondShipOtherProps } = overlap;
+            const secondShip = new Ship(secondShipLength);
+            gameboard.placeShip(firstShip, ...Object.values(firstShipOtherProps));
+            expect(() => gameboard.placeShip(secondShip, ...Object.values(secondShipOtherProps))).toThrow('Position already occupied!');
           })
         })
       })
