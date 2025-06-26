@@ -25,7 +25,8 @@ export default class Gameboard {
     )
   }
 
-  placeShip(length, row, col, horizontally = true) {
+  placeShip(ship, row, col, horizontally = true) {
+    const { length } = ship;
     if(arguments.length < 3 || length === undefined || row === undefined || col === undefined) {
       throw new Error('Missing value(s)!');
     };
@@ -33,7 +34,6 @@ export default class Gameboard {
     if(length > 10 || length < 0) throw new Error('Size of ship not allowed!');
     if(this.offLimits(length, row, col, horizontally) || row < 0 || col < 0) throw new Error('Off limits!');
 
-    const ship = new Ship(length);
     const positions = [];
     
     if(horizontally) {
@@ -83,5 +83,11 @@ export default class Gameboard {
     }
 
     return true;
+  }
+
+  resetGameboard() {
+    this.defenseBoard = Array.from({ length: 10 }, (_) => Array.from({ length: 10 }, (_) => ({ ship: null, hitTaken: false })));
+    this.missedAttacks = [];
+    this.ships = [];
   }
 }

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batalha Naval</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">⚓ BATALHA NAVAL ⚓</h1>
+            <div class="game-status pulse">🎯 Sua vez de atirar!</div>
+        </div>
+
+        <div class="game-info">
+            <div class="info-panel">
+                <div class="info-title">Seus Tiros</div>
+                <div class="info-value" id="shots-taken">15</div>
+            </div>
+            <div class="info-panel">
+                <div class="info-title">Acertos</div>
+                <div class="info-value" id="hits">8</div>
+            </div>
+            <div class="info-panel">
+                <div class="info-title">Precisão</div>
+                <div class="info-value" id="precision">53%</div>
+            </div>
+        </div>
+
+        <!-- Insert .game-boards here -->
+
+        <div class="controls">
+            <button class="btn btn-primary" id="new-game">🎯 Novo Jogo</button>
+        </div>
+    </div>
+    <script type="module" src="./main.js"></script>
+</body>
+</html>

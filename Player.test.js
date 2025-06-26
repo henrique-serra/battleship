@@ -7,6 +7,7 @@ describe('Player', () => {
   test('Player exists', () => {
     expect(player).toBeDefined();
   });
+<<<<<<< HEAD
 
   test('attack(x,y) should return [x,y]', () => {
     expect(player.attack(0,0)).toEqual([0,0]);
@@ -16,4 +17,6 @@ describe('Player', () => {
     player.attack(0,0);
     expect(player.attacks).toEqual([[0,0]]);
   })
+=======
+>>>>>>> gameboard
 })
