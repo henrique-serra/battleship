@@ -1,4 +1,4 @@
-import Player from "./Player";
+import Player from "./Player.js";
 
 class Controller {
   constructor(player1 = new Player(), player2 = new Player('Player 2', 'computer')) {
@@ -7,9 +7,11 @@ class Controller {
     this.turn = this.player1;
   }
 
-  
   attack(attacked, row, col) {
+    const attacker = attacked === this.player1 ? this.player2 : this.player1;
+    
     attacked.gameboard.receiveAttack(row, col);
+    attacker.attacks.push([row, col]);
   }
   
   getWinner() {
@@ -43,7 +45,12 @@ class Controller {
   }
 
   clearGame() {
-    
+    this.player1.gameboard.resetGameboard();
+    this.player2.gameboard.resetGameboard();
+    this.player1.attacks = [];
+    this.player2.attacks = [];
+
+    this.turn = this.player1;
   }
 }
 
