@@ -1,4 +1,4 @@
-import Gameboard from "./Gameboard";
+import Gameboard from "./Gameboard.js";
 
 export default class Player {
   constructor(name = 'Player 1', type = 'real') {
