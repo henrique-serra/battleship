@@ -149,6 +149,41 @@ describe('Gameboard class', () => {
     })
   });
 
+  describe('placeShipRandomly', () => {
+    test('should call placeShip with no errors', () => {
+      for(let i = 0; i < 100; i++) {
+        const gameboard = new Gameboard();
+        gameboard.ships.forEach((ship) => {
+          const { row, col, horizontally } = gameboard.placeShipRandomly(ship);
+          expect(() => gameboard.placeShip(ship, row, col, horizontally)).not.toThrow('Off limits!');
+        })
+      }
+    });
+
+    test('should have reasonable distribution', () => {
+      const orientations = [];
+
+      for (let i = 0; i < 1000; i++) {
+        const gameboard = new Gameboard();
+        const ship2 = gameboard.ships[1];
+        const { horizontally } = gameboard.placeShipRandomly(ship2);
+        orientations.push(horizontally);
+      }
+
+      const horizontalCount = orientations.filter(Boolean).length;
+      expect(horizontalCount).toBeGreaterThan(400);
+      expect(horizontalCount).toBeLessThan(600);
+    });
+
+    test('should not timeout', () => {
+      const startTime = Date.now();
+      gameboard.placeShipRandomly(gameboard.ships[4]);
+      const endTime = Date.now();
+
+      expect(endTime - startTime).toBeLessThan(1000);
+    });
+  });
+
   describe('removeShip', () => {
     const removeShipCases = {
       success: [
