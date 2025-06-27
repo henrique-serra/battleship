@@ -1,4 +1,4 @@
-import Player from "./Player";
+import Player from "./Player.js";
 
 class Controller {
   constructor(player1 = new Player(), player2 = new Player('Player 2', 'computer')) {
@@ -7,7 +7,6 @@ class Controller {
     this.turn = this.player1;
   }
 
-  
   attack(attacked, row, col) {
     const attacker = attacked === this.player1 ? this.player2 : this.player1;
     
