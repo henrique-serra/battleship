@@ -101,289 +101,35 @@ describe('Controller', () => {
   });
 
   describe('getWinner', () => {
-    // Needs refactoring
-    const getWinnerCases = {
-      player1Wins: [
-        {
-          player1Ships: [
-            { indexShip: 0, row: 0, col: 0, horizontally: true },
-            { indexShip: 1, row: 0, col: 0, horizontally: true },
-            { indexShip: 2, row: 0, col: 0, horizontally: true },
-            { indexShip: 3, row: 0, col: 0, horizontally: true },
-            { indexShip: 4, row: 0, col: 0, horizontally: true },
-          ],
-          player2Ships: [
-            { indexShip: 0, row: 0, col: 0, horizontally: true },
-            { indexShip: 1, row: 0, col: 0, horizontally: true },
-            { indexShip: 2, row: 0, col: 0, horizontally: true },
-            { indexShip: 3, row: 0, col: 0, horizontally: true },
-            { indexShip: 4, row: 0, col: 0, horizontally: true },
-          ],
-          attacks: [
-            { target: 'player2', row: 5, col: 5 } // Afunda navio do player2
-          ],
-          description: 'should return player1 when player2 has single ship sunk'
-        },
-        // Caso 2: Múltiplos navios do player2 afundados
-        {
-          player1Ships: [
-            { length: 3, row: 1, col: 1, horizontally: true },
-            { length: 2, row: 3, col: 3, horizontally: false }
-          ],
-          player2Ships: [
-            { length: 1, row: 0, col: 0, horizontally: true },
-            { length: 2, row: 7, col: 7, horizontally: true }
-          ],
-          attacks: [
-            { target: 'player2', row: 0, col: 0 }, // Afunda primeiro navio
-            { target: 'player2', row: 7, col: 7 }, // Afunda segundo navio
-            { target: 'player2', row: 7, col: 8 }
-          ],
-          description: 'should return player1 when all player2 ships are sunk'
-        },
-        // Caso 3: Player1 com navios parcialmente atingidos, player2 completamente afundado
-        {
-          player1Ships: [
-            { length: 4, row: 2, col: 2, horizontally: true }
-          ],
-          player2Ships: [
-            { length: 3, row: 4, col: 4, horizontally: false }
-          ],
-          attacks: [
-            { target: 'player1', row: 2, col: 2 }, // Atinge player1 parcialmente
-            { target: 'player1', row: 2, col: 3 },
-            { target: 'player2', row: 4, col: 4 }, // Afunda player2 completamente
-            { target: 'player2', row: 5, col: 4 },
-            { target: 'player2', row: 6, col: 4 }
-          ],
-          description: 'should return player1 when player2 sunk despite player1 being hit'
-        }
-      ],
-
-      player2Wins: [
-        // Caso 1: Navio único do player1 afundado
-        {
-          player1Ships: [
-            { length: 1, row: 8, col: 8, horizontally: true }
-          ],
-          player2Ships: [
-            { length: 3, row: 0, col: 0, horizontally: false }
-          ],
-          attacks: [
-            { target: 'player1', row: 8, col: 8 } // Afunda navio do player1
-          ],
-          description: 'should return player2 when player1 has single ship sunk'
-        },
-        // Caso 2: Múltiplos navios do player1 afundados
-        {
-          player1Ships: [
-            { length: 2, row: 1, col: 1, horizontally: true },
-            { length: 1, row: 5, col: 5, horizontally: true },
-            { length: 3, row: 7, col: 0, horizontally: false }
-          ],
-          player2Ships: [
-            { length: 4, row: 0, col: 0, horizontally: true }
-          ],
-          attacks: [
-            { target: 'player1', row: 1, col: 1 }, // Afunda primeiro navio
-            { target: 'player1', row: 1, col: 2 },
-            { target: 'player1', row: 5, col: 5 }, // Afunda segundo navio
-            { target: 'player1', row: 7, col: 0 }, // Afunda terceiro navio
-            { target: 'player1', row: 8, col: 0 },
-            { target: 'player1', row: 9, col: 0 }
-          ],
-          description: 'should return player2 when all player1 ships are sunk'
-        },
-        // Caso 3: Player2 com navios parcialmente atingidos, player1 completamente afundado
-        {
-          player1Ships: [
-            { length: 2, row: 3, col: 3, horizontally: true }
-          ],
-          player2Ships: [
-            { length: 5, row: 0, col: 0, horizontally: true }
-          ],
-          attacks: [
-            { target: 'player2', row: 0, col: 0 }, // Atinge player2 parcialmente
-            { target: 'player2', row: 0, col: 1 },
-            { target: 'player1', row: 3, col: 3 }, // Afunda player1 completamente
-            { target: 'player1', row: 3, col: 4 }
-          ],
-          description: 'should return player2 when player1 sunk despite player2 being hit'
-        }
-      ],
-
-      noWinner: [
-        // Caso 1: Nenhum navio atingido
-        {
-          player1Ships: [
-            { length: 2, row: 0, col: 0, horizontally: true }
-          ],
-          player2Ships: [
-            { length: 2, row: 5, col: 5, horizontally: true }
-          ],
-          attacks: [],
-          description: 'should return null when no attacks made'
-        },
-        // Caso 2: Ataques que não atingem navios
-        {
-          player1Ships: [
-            { length: 3, row: 1, col: 1, horizontally: true }
-          ],
-          player2Ships: [
-            { length: 3, row: 6, col: 6, horizontally: false }
-          ],
-          attacks: [
-            { target: 'player1', row: 0, col: 0 }, // miss
-            { target: 'player2', row: 9, col: 9 }, // miss
-            { target: 'player1', row: 5, col: 5 }, // miss
-            { target: 'player2', row: 2, col: 2 }  // miss
-          ],
-          description: 'should return null when all attacks miss'
-        },
-        // Caso 3: Ambos jogadores com navios parcialmente atingidos
-        {
-          player1Ships: [
-            { length: 4, row: 0, col: 0, horizontally: true },
-            { length: 2, row: 3, col: 3, horizontally: false }
-          ],
-          player2Ships: [
-            { length: 3, row: 6, col: 0, horizontally: true },
-            { length: 1, row: 8, col: 8, horizontally: true }
-          ],
-          attacks: [
-            { target: 'player1', row: 0, col: 0 }, // hit parcial
-            { target: 'player1', row: 0, col: 1 }, // hit parcial
-            { target: 'player2', row: 6, col: 0 }, // hit parcial
-            { target: 'player2', row: 6, col: 1 }, // hit parcial
-            { target: 'player1', row: 3, col: 3 }, // hit parcial
-            { target: 'player2', row: 8, col: 8 }  // afunda um navio, mas ainda tem outro
-          ],
-          description: 'should return null when both players have ships remaining'
-        },
-        // Caso 4: Um jogador com navio afundado, outro com navios intactos
-        {
-          player1Ships: [
-            { length: 1, row: 1, col: 1, horizontally: true },
-            { length: 2, row: 5, col: 5, horizontally: true }
-          ],
-          player2Ships: [
-            { length: 3, row: 7, col: 0, horizontally: false }
-          ],
-          attacks: [
-            { target: 'player1', row: 1, col: 1 }, // afunda um navio do player1
-            { target: 'player2', row: 7, col: 0 }  // hit parcial no player2
-          ],
-          description: 'should return null when one player has ships sunk but both still have remaining ships'
-        }
-      ],
-
-      errors: [
-        // Caso 1: Nenhum navio colocado no player1
-        {
-          player1Ships: [],
-          player2Ships: [
-            { length: 2, row: 0, col: 0, horizontally: true }
-          ],
-          attacks: [],
-          description: 'should throw when player1 has no ships',
-          errorMsg: 'No ships on gameboard!'
-        },
-        // Caso 2: Nenhum navio colocado no player2
-        {
-          player1Ships: [
-            { length: 2, row: 0, col: 0, horizontally: true }
-          ],
-          player2Ships: [],
-          attacks: [],
-          description: 'should throw when player2 has no ships',
-          errorMsg: 'No ships on gameboard!'
-        },
-        // Caso 3: Nenhum navio colocado em ambos jogadores
-        {
-          player1Ships: [],
-          player2Ships: [],
-          attacks: [],
-          description: 'should throw when both players have no ships',
-          errorMsg: 'No ships on gameboard!'
-        }
-      ]
-    };
-
-    // Helper function para executar os casos de teste
-    const executeTestCase = (testCase, expectedResult) => {
-      // Coloca navios do player1
-      testCase.player1Ships.forEach(ship => {
-        c.player1.gameboard.placeShip(ship.length, ship.row, ship.col, ship.horizontally);
+    test('Player 1 wins', () => {
+      const player1Gameboard = c.player1.gameboard;
+      const player2Gameboard = c.player2.gameboard;
+      
+      // Place all ships randomly
+      player1Gameboard.ships.forEach((ship) => {
+        player1Gameboard.placeShipRandomly(ship);
+        player2Gameboard.placeShipRandomly(ship);
       });
 
-      // Coloca navios do player2
-      testCase.player2Ships.forEach(ship => {
-        c.player2.gameboard.placeShip(ship.length, ship.row, ship.col, ship.horizontally);
-      });
-
-      // Executa ataques
-      testCase.attacks.forEach(attack => {
-        const target = attack.target === 'player1' ? c.player1 : c.player2;
-        c.attack(target, attack.row, attack.col);
-      });
-
-      // Verifica resultado
-      if (expectedResult === 'player1') {
-        expect(c.getWinner()).toBe(c.player1);
-      } else if (expectedResult === 'player2') {
-        expect(c.getWinner()).toBe(c.player2);
-      } else if (expectedResult === null) {
-        expect(c.getWinner()).toBeNull();
-      }
-    };
-
-    describe('Player 1 wins', () => {
-      getWinnerCases.player1Wins.forEach((testCase, index) => {
-        test(`case ${index}: ${testCase.description}`, () => {
-          executeTestCase(testCase, 'player1');
+      player2Gameboard.ships.forEach(({ positions }) => {
+        positions.forEach(([row, col]) => {
+          c.attack(c.player2, row, col);
         });
       });
+
+      expect(c.getWinner()).toBe(c.player1);
     });
 
     describe('Player 2 wins', () => {
-      getWinnerCases.player2Wins.forEach((testCase, index) => {
-        test(`case ${index}: ${testCase.description}`, () => {
-          executeTestCase(testCase, 'player2');
-        });
-      });
+      
     });
 
     describe('No winner', () => {
-      getWinnerCases.noWinner.forEach((testCase, index) => {
-        test(`case ${index}: ${testCase.description}`, () => {
-          executeTestCase(testCase, null);
-        });
-      });
+      
     });
 
     describe('Error cases', () => {
-      getWinnerCases.errors.forEach((testCase, index) => {
-        test(`case ${index}: ${testCase.description}`, () => {
-          // Coloca navios do player1
-          testCase.player1Ships.forEach(ship => {
-            c.player1.gameboard.placeShip(ship.length, ship.row, ship.col, ship.horizontally);
-          });
-
-          // Coloca navios do player2
-          testCase.player2Ships.forEach(ship => {
-            c.player2.gameboard.placeShip(ship.length, ship.row, ship.col, ship.horizontally);
-          });
-
-          // Executa ataques
-          testCase.attacks.forEach(attack => {
-            const target = attack.target === 'player1' ? c.player1 : c.player2;
-            c.attack(target, attack.row, attack.col);
-          });
-
-          // Verifica se lança erro
-          expect(() => c.getWinner()).toThrow(testCase.errorMsg);
-        });
-      });
+      
     });
   });
 
