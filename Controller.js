@@ -5,6 +5,11 @@ class Controller {
     this.player1 = player1;
     this.player2 = player2;
     this.turn = this.player1;
+    this.gamePhase = 'positioning';
+  }
+
+  startGame() {
+    this.gamePhase = 'attacks';
   }
 
   attack(attacked, row, col) {
