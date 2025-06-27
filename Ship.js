@@ -7,6 +7,7 @@ export default class Ship {
     this.type = this.getShipType(length);
     this.hits = hits;
     this.sunk = sunk;
+    this.positions = [];
   }
 
   getShipType(length) {
