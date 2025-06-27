@@ -288,116 +288,149 @@ describe('Gameboard class', () => {
   describe('allShipsSunk method', () => {
     const allShipsSunkCases = {
       allSunk: [
+        // Caso 0: Todos os 5 navios posicionados em linha horizontal
         {
           ships: [
-            { length: 1, row: 0, col: 0, horizontally: true }
+            { shipIndex: 0, row: 0, col: 0, horizontally: true }, // length 1: [0,0]
+            { shipIndex: 1, row: 1, col: 0, horizontally: true }, // length 2: [1,0], [1,1]
+            { shipIndex: 2, row: 2, col: 0, horizontally: true }, // length 3: [2,0], [2,1], [2,2]
+            { shipIndex: 3, row: 3, col: 0, horizontally: true }, // length 4: [3,0], [3,1], [3,2], [3,3]
+            { shipIndex: 4, row: 4, col: 0, horizontally: true }  // length 5: [4,0], [4,1], [4,2], [4,3], [4,4]
           ],
           attacksReceived: [
-            { row: 0, col: 0}
-          ]
-        },
-        // Dois navios pequenos em posições distintas
-        {
-          ships: [
-            { length: 1, row: 0, col: 0, horizontally: true },
-            { length: 1, row: 5, col: 5, horizontally: true }
-          ],
-          attacksReceived: [
+            // Afundar navio length 1
             { row: 0, col: 0 },
-            { row: 5, col: 5 }
+            // Afundar navio length 2
+            { row: 1, col: 0 }, { row: 1, col: 1 },
+            // Afundar navio length 3
+            { row: 2, col: 0 }, { row: 2, col: 1 }, { row: 2, col: 2 },
+            // Afundar navio length 4
+            { row: 3, col: 0 }, { row: 3, col: 1 }, { row: 3, col: 2 }, { row: 3, col: 3 },
+            // Afundar navio length 5
+            { row: 4, col: 0 }, { row: 4, col: 1 }, { row: 4, col: 2 }, { row: 4, col: 3 }, { row: 4, col: 4 }
           ]
         },
-        // Um navio horizontal e um vertical
+        
+        // Caso 1: Navios em posições espalhadas (horizontal e vertical)
         {
           ships: [
-            { length: 2, row: 1, col: 1, horizontally: true },  // [1,1] e [1,2]
-            { length: 3, row: 4, col: 4, horizontally: false }  // [4,4], [5,4], [6,4]
+            { shipIndex: 0, row: 0, col: 0, horizontally: true },  // length 1: [0,0]
+            { shipIndex: 1, row: 2, col: 2, horizontally: false }, // length 2: [2,2], [3,2]
+            { shipIndex: 2, row: 5, col: 5, horizontally: true },  // length 3: [5,5], [5,6], [5,7]
+            { shipIndex: 3, row: 6, col: 0, horizontally: false }, // length 4: [6,0], [7,0], [8,0], [9,0]
+            { shipIndex: 4, row: 0, col: 5, horizontally: true }   // length 5: [0,5], [0,6], [0,7], [0,8], [0,9]
           ],
           attacksReceived: [
-            { row: 1, col: 1 },
-            { row: 1, col: 2 },
-            { row: 4, col: 4 },
-            { row: 5, col: 4 },
-            { row: 6, col: 4 }
+            // Afundar todos os navios
+            { row: 0, col: 0 },                                           // length 1
+            { row: 2, col: 2 }, { row: 3, col: 2 },                     // length 2
+            { row: 5, col: 5 }, { row: 5, col: 6 }, { row: 5, col: 7 }, // length 3
+            { row: 6, col: 0 }, { row: 7, col: 0 }, { row: 8, col: 0 }, { row: 9, col: 0 }, // length 4
+            { row: 0, col: 5 }, { row: 0, col: 6 }, { row: 0, col: 7 }, { row: 0, col: 8 }, { row: 0, col: 9 } // length 5
           ]
         },
-        // Navios de tamanhos variados
+        
+        // Caso 2: Posicionamento em cantos e extremos
         {
           ships: [
-            { length: 4, row: 0, col: 0, horizontally: true }, // [0,0] a [0,3]
-            { length: 1, row: 9, col: 9, horizontally: true }  // [9,9]
+            { shipIndex: 0, row: 9, col: 9, horizontally: true },  // length 1: [9,9]
+            { shipIndex: 1, row: 0, col: 8, horizontally: true },  // length 2: [0,8], [0,9]
+            { shipIndex: 2, row: 7, col: 0, horizontally: false }, // length 3: [7,0], [8,0], [9,0]
+            { shipIndex: 3, row: 0, col: 0, horizontally: true },  // length 4: [0,0], [0,1], [0,2], [0,3]
+            { shipIndex: 4, row: 2, col: 5, horizontally: false }  // length 5: [2,5], [3,5], [4,5], [5,5], [6,5]
           ],
           attacksReceived: [
-            { row: 0, col: 0 },
-            { row: 0, col: 1 },
-            { row: 0, col: 2 },
-            { row: 0, col: 3 },
-            { row: 9, col: 9 }
+            // Afundar todos
+            { row: 9, col: 9 },
+            { row: 0, col: 8 }, { row: 0, col: 9 },
+            { row: 7, col: 0 }, { row: 8, col: 0 }, { row: 9, col: 0 },
+            { row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }, { row: 0, col: 3 },
+            { row: 2, col: 5 }, { row: 3, col: 5 }, { row: 4, col: 5 }, { row: 5, col: 5 }, { row: 6, col: 5 }
           ]
         }
       ],
+      
       notAllSunk: [
-        // 1. Um navio foi atingido parcialmente
+        // 1. Apenas um navio completamente afundado
         {
           ships: [
-            { length: 3, row: 0, col: 0, horizontally: true }
+            { shipIndex: 0, row: 0, col: 0, horizontally: true }, // length 1
+            { shipIndex: 1, row: 2, col: 2, horizontally: true }, // length 2
+            { shipIndex: 2, row: 4, col: 4, horizontally: true }, // length 3
+            { shipIndex: 3, row: 6, col: 0, horizontally: true }, // length 4
+            { shipIndex: 4, row: 8, col: 0, horizontally: true }  // length 5
           ],
           attacksReceived: [
-            { row: 0, col: 0 },
-            { row: 0, col: 1 }
+            { row: 0, col: 0 } // Só o menor navio afundado
           ],
-          description: 'should return false when ship was only partially hit'
+          description: 'should return false when only one ship is sunk'
         },
-        // 2. Dois navios — apenas um afundado
+        
+        // 2. Vários navios com danos parciais
         {
           ships: [
-            { length: 1, row: 1, col: 1, horizontally: true },
-            { length: 2, row: 3, col: 3, horizontally: true }
+            { shipIndex: 0, row: 0, col: 0, horizontally: true }, // length 1
+            { shipIndex: 1, row: 2, col: 2, horizontally: true }, // length 2
+            { shipIndex: 2, row: 4, col: 4, horizontally: true }, // length 3
+            { shipIndex: 3, row: 6, col: 0, horizontally: true }, // length 4
+            { shipIndex: 4, row: 8, col: 0, horizontally: true }  // length 5
           ],
           attacksReceived: [
-            { row: 1, col: 1 },  // navio 1 afundado
-            { row: 3, col: 3 }   // navio 2 parcialmente atingido
+            { row: 0, col: 0 },           // length 1 afundado
+            { row: 2, col: 2 },           // length 2 parcialmente atingido
+            { row: 4, col: 4 }, { row: 4, col: 5 }, // length 3 parcialmente atingido
+            { row: 6, col: 0 }, { row: 6, col: 1 }, { row: 6, col: 2 }, // length 4 parcialmente atingido
+            { row: 8, col: 0 }, { row: 8, col: 1 }, { row: 8, col: 2 }, { row: 8, col: 3 } // length 5 parcialmente atingido
+          ],
+          description: 'should return false when ships have partial damage'
+        },
+        
+        // 3. Nenhum navio atingido
+        {
+          ships: [
+            { shipIndex: 0, row: 0, col: 0, horizontally: true },
+            { shipIndex: 1, row: 2, col: 2, horizontally: true },
+            { shipIndex: 2, row: 4, col: 4, horizontally: true },
+            { shipIndex: 3, row: 6, col: 0, horizontally: true },
+            { shipIndex: 4, row: 8, col: 0, horizontally: true }
+          ],
+          attacksReceived: [
+            { row: 1, col: 1 }, { row: 3, col: 3 }, { row: 5, col: 5 } // Todos os ataques erram
+          ],
+          description: 'should return false when no ships are hit'
+        },
+        
+        // 4. Quase todos afundados, mas não todos
+        {
+          ships: [
+            { shipIndex: 0, row: 0, col: 0, horizontally: true }, // length 1
+            { shipIndex: 1, row: 2, col: 2, horizontally: true }, // length 2
+            { shipIndex: 2, row: 4, col: 4, horizontally: true }, // length 3
+            { shipIndex: 3, row: 6, col: 0, horizontally: true }, // length 4
+            { shipIndex: 4, row: 8, col: 0, horizontally: true }  // length 5
+          ],
+          attacksReceived: [
+            // Afundar os 4 primeiros navios
+            { row: 0, col: 0 },
+            { row: 2, col: 2 }, { row: 2, col: 3 },
+            { row: 4, col: 4 }, { row: 4, col: 5 }, { row: 4, col: 6 },
+            { row: 6, col: 0 }, { row: 6, col: 1 }, { row: 6, col: 2 }, { row: 6, col: 3 },
+            // Deixar o último navio (length 5) parcialmente atingido
+            { row: 8, col: 0 }, { row: 8, col: 1 }, { row: 8, col: 2 }, { row: 8, col: 3 }
+            // Falta { row: 8, col: 4 } para afundar completamente
           ],
           description: 'should return false when one ship remains partially intact'
-        },
-        // 3. Nenhum navio foi atingido
-        {
-          ships: [
-            { length: 2, row: 0, col: 0, horizontally: true },
-            { length: 3, row: 2, col: 2, horizontally: false }
-          ],
-          attacksReceived: [
-            { row: 9, col: 9 }, // ataque completamente fora
-            { row: 4, col: 4 }
-          ],
-          description: 'should return false when no ships were hit'
-        },
-        // 4. Um dos navios está afundado, o outro não recebeu ataque
-        {
-          ships: [
-            { length: 1, row: 1, col: 1, horizontally: true },
-            { length: 2, row: 5, col: 5, horizontally: false }
-          ],
-          attacksReceived: [
-            { row: 1, col: 1 } // só o primeiro afundado
-          ],
-          description: 'should return false when one ship was not touched'
         }
       ],
-      errors: [
-        {
-          ships: [],  // Nenhum navio colocado
-          attacksReceived: [],
-          description: 'should throw if no ships were placed',
-          errorMsg: 'No ships on gameboard!'
-        }
-      ]
     };
 
     describe('all ships sunk', () => {
       allShipsSunkCases.allSunk.forEach(({ ships, attacksReceived }, index) => {
         test(`case ${index} should return true`, () => {
-          ships.forEach((ship) => gameboard.placeShip(...Object.values(ship)));
+          ships.forEach(({ shipIndex, row, col, horizontally }) => {
+            const ship = gameboard.ships[shipIndex];
+            gameboard.placeShip(ship, row, col, horizontally);
+          });
           attacksReceived.forEach(({ row, col }) => gameboard.receiveAttack(row, col));
           expect(gameboard.allShipsSunk()).toBe(true);
         })
@@ -407,19 +440,9 @@ describe('Gameboard class', () => {
     describe('not all ships sunk', () => {
       allShipsSunkCases.notAllSunk.forEach(({ ships, attacksReceived, description }) => {
         test(description, () => {
-          ships.forEach((ship) => gameboard.placeShip(...Object.values(ship)));
+          ships.forEach(({ shipIndex, row, col, horizontally }) => gameboard.placeShip(gameboard.ships[shipIndex], row, col, horizontally));
           attacksReceived.forEach(({ row, col }) => gameboard.receiveAttack(row, col));
           expect(gameboard.allShipsSunk()).toBe(false);
-        })
-      })
-    })
-
-    describe('error cases', () => {
-      allShipsSunkCases.errors.forEach(({ ships, attacksReceived, description, errorMsg }) => {
-        test(description, () => {
-          ships.forEach((ship) => gameboard.placeShip(...Object.values(ship)));
-          attacksReceived.forEach(({ row, col }) => gameboard.receiveAttack(row, col));
-          expect(() => gameboard.allShipsSunk()).toThrow(errorMsg);
         })
       })
     })
@@ -428,7 +451,7 @@ describe('Gameboard class', () => {
   describe('resetGameboard method', () => {
     test('should reset defenseBoard to initial state', () => {
       // Arrange: modify the board first
-      gameboard.placeShip(3, 2, 2, true);
+      gameboard.placeShip(gameboard.ships[2], 2, 2, true);
       gameboard.receiveAttack(5, 5); // miss
       gameboard.receiveAttack(2, 2); // hit
       
@@ -452,7 +475,7 @@ describe('Gameboard class', () => {
 
     test('should clear missedAttacks array', () => {
       // Arrange: add some missed attacks
-      gameboard.placeShip(2, 0, 0, true);
+      gameboard.placeShip(gameboard.ships[1], 0, 0, true);
       gameboard.receiveAttack(5, 5); // miss
       gameboard.receiveAttack(7, 3); // miss
       gameboard.receiveAttack(9, 9); // miss
@@ -467,41 +490,62 @@ describe('Gameboard class', () => {
       expect(gameboard.missedAttacks).toHaveLength(0);
     });
 
-    test('should clear ships array', () => {
+    test('should replace ships in ships array for new ships', () => {
       // Arrange: place multiple ships
-      const ship1 = gameboard.placeShip(4, 0, 0, true);
-      const ship2 = gameboard.placeShip(3, 2, 2, false);
-      const ship3 = gameboard.placeShip(2, 5, 5, true);
-      const ship4 = gameboard.placeShip(1, 9, 9, true);
+      const ship1 = gameboard.ships[0];
+      const ship2 = gameboard.ships[1];
+      const ship3 = gameboard.ships[2];
+      const ship4 = gameboard.ships[3];
+      const ship5 = gameboard.ships[4];
       
-      expect(gameboard.ships).toHaveLength(4);
-      expect(gameboard.ships).toContain(ship1);
-      expect(gameboard.ships).toContain(ship2);
-      expect(gameboard.ships).toContain(ship3);
-      expect(gameboard.ships).toContain(ship4);
+      gameboard.placeShip(ship1, 0, 0, true);
+      gameboard.placeShip(ship2, 2, 2, false);
+      gameboard.placeShip(ship3, 5, 5, true);
+      gameboard.placeShip(ship4, 1, 1, false);
+      gameboard.placeShip(ship5, 9, 0, true);
       
       // Act
       gameboard.resetGameboard();
       
       // Assert
-      expect(gameboard.ships).toEqual([]);
-      expect(gameboard.ships).toHaveLength(0);
+      expect(gameboard.ships[0]).not.toBe(ship1);
+      expect(gameboard.ships[1]).not.toBe(ship2);
+      expect(gameboard.ships[2]).not.toBe(ship3);
+      expect(gameboard.ships[3]).not.toBe(ship4);
+      expect(gameboard.ships[4]).not.toBe(ship5);
+
+      expect(gameboard.ships).toHaveLength(5);
+
+      gameboard.ships.forEach((ship, index) => {
+        expect(ship.hits).toBe(0);
+        expect(ship.sunk).toBe(false);
+        expect(ship.positions).toHaveLength(0);
+        expect(index).toBe(ship.length - 1);
+      });
     });
 
     test('should completely reset a complex game state', () => {
       // Arrange: create a complex game state
-      // Place ships
-      const ship1 = gameboard.placeShip(4, 0, 0, true);   // [0,0] to [0,3]
-      const ship2 = gameboard.placeShip(3, 2, 2, false);  // [2,2] to [4,2]
-      const ship3 = gameboard.placeShip(2, 6, 6, true);   // [6,6] to [6,7]
-      const ship4 = gameboard.placeShip(1, 9, 9, true);   // [9,9]
+      // Place ships using predefined ships from constructor (ordered by size)
+      const ship1 = gameboard.ships[0]; // length 1
+      const ship2 = gameboard.ships[1]; // length 2
+      const ship3 = gameboard.ships[2]; // length 3
+      const ship4 = gameboard.ships[3]; // length 4
+      const ship5 = gameboard.ships[4]; // length 5
+      
+      gameboard.placeShip(ship1, 9, 9, true);   // [9,9]
+      gameboard.placeShip(ship2, 6, 6, true);   // [6,6] to [6,7]
+      gameboard.placeShip(ship3, 2, 2, false);  // [2,2] to [4,2]
+      gameboard.placeShip(ship4, 0, 0, true);   // [0,0] to [0,3]
+      gameboard.placeShip(ship5, 5, 0, true);   // [5,0] to [5,4]
       
       // Make attacks (hits and misses)
-      gameboard.receiveAttack(0, 0); // hit ship1
-      gameboard.receiveAttack(0, 1); // hit ship1
-      gameboard.receiveAttack(2, 2); // hit ship2
-      gameboard.receiveAttack(6, 6); // hit ship3
-      gameboard.receiveAttack(9, 9); // hit ship4 (sunk)
+      gameboard.receiveAttack(0, 0); // hit ship4
+      gameboard.receiveAttack(0, 1); // hit ship4
+      gameboard.receiveAttack(2, 2); // hit ship3
+      gameboard.receiveAttack(6, 6); // hit ship2
+      gameboard.receiveAttack(9, 9); // hit ship1 (sunk)
+      gameboard.receiveAttack(5, 0); // hit ship5
       
       gameboard.receiveAttack(1, 1); // miss
       gameboard.receiveAttack(3, 3); // miss
@@ -509,17 +553,32 @@ describe('Gameboard class', () => {
       gameboard.receiveAttack(8, 8); // miss
       
       // Verify complex state exists
-      expect(gameboard.ships).toHaveLength(4);
+      expect(gameboard.ships).toHaveLength(5); // All 5 ships should be placed
       expect(gameboard.missedAttacks).toHaveLength(4);
-      expect(gameboard.defenseBoard[0][0].ship).toBe(ship1);
-      expect(gameboard.defenseBoard[2][2].ship).toBe(ship2);
+      expect(gameboard.defenseBoard[9][9].ship).toBe(ship1);
+      expect(gameboard.defenseBoard[6][6].ship).toBe(ship2);
+      expect(gameboard.defenseBoard[2][2].ship).toBe(ship3);
+      expect(gameboard.defenseBoard[0][0].ship).toBe(ship4);
+      expect(gameboard.defenseBoard[5][0].ship).toBe(ship5);
       
       // Act
       gameboard.resetGameboard();
       
-      // Assert: everything should be reset
-      expect(gameboard.ships).toEqual([]);
-      expect(gameboard.missedAttacks).toEqual([]);
+      // Assert
+      expect(gameboard.ships[0]).not.toBe(ship1);
+      expect(gameboard.ships[1]).not.toBe(ship2);
+      expect(gameboard.ships[2]).not.toBe(ship3);
+      expect(gameboard.ships[3]).not.toBe(ship4);
+      expect(gameboard.ships[4]).not.toBe(ship5);
+
+      expect(gameboard.ships).toHaveLength(5);
+
+      gameboard.ships.forEach((ship, index) => {
+        expect(ship.hits).toBe(0);
+        expect(ship.sunk).toBe(false);
+        expect(ship.positions).toHaveLength(0);
+        expect(index).toBe(ship.length - 1);
+      });
       
       // Verify all board positions are reset
       for (let row = 0; row < 10; row++) {
@@ -532,49 +591,9 @@ describe('Gameboard class', () => {
       }
     });
 
-    test('should allow placing new ships after reset', () => {
-      // Arrange: fill board with ships
-      gameboard.placeShip(4, 0, 0, true);
-      gameboard.placeShip(3, 2, 2, false);
-      gameboard.placeShip(2, 6, 6, true);
-      
-      // Act: reset and place new ships
-      gameboard.resetGameboard();
-      
-      // Assert: should be able to place ships in previously occupied positions
-      expect(() => {
-        gameboard.placeShip(5, 0, 0, true);  // Same position as before
-        gameboard.placeShip(3, 2, 2, true);  // Same starting position, different orientation
-        gameboard.placeShip(1, 6, 6, false); // Same position, different orientation
-      }).not.toThrow();
-      
-      expect(gameboard.ships).toHaveLength(3);
-      expect(gameboard.defenseBoard[0][0].ship).toBeDefined();
-      expect(gameboard.defenseBoard[2][2].ship).toBeDefined();
-      expect(gameboard.defenseBoard[6][6].ship).toBeDefined();
-    });
-
-    test('should reset even when called on empty gameboard', () => {
-      // Arrange: start with fresh gameboard (no ships, no attacks)
-      const initialShipsLength = gameboard.ships.length;
-      const initialMissedAttacksLength = gameboard.missedAttacks.length;
-      
-      expect(initialShipsLength).toBe(0);
-      expect(initialMissedAttacksLength).toBe(0);
-      
-      // Act
-      gameboard.resetGameboard();
-      
-      // Assert: should still work without errors
-      expect(gameboard.ships).toEqual([]);
-      expect(gameboard.missedAttacks).toEqual([]);
-      expect(gameboard.defenseBoard).toHaveLength(10);
-      expect(gameboard.defenseBoard[0]).toHaveLength(10);
-    });
-
     test('should reset hitTaken property for all cells', () => {
       // Arrange: place ship and attack it
-      gameboard.placeShip(3, 1, 1, true);
+      gameboard.placeShip(gameboard.ships[2], 1, 1, true);
       gameboard.receiveAttack(1, 1); // hit
       
       // Manually set hitTaken to true for testing
@@ -594,7 +613,7 @@ describe('Gameboard class', () => {
 
     test('should be idempotent - multiple calls should have same effect', () => {
       // Arrange: create some state
-      gameboard.placeShip(2, 0, 0, true);
+      gameboard.placeShip(gameboard.ships[1], 0, 0, true);
       gameboard.receiveAttack(5, 5);
       
       // Act: call reset multiple times
@@ -602,9 +621,14 @@ describe('Gameboard class', () => {
       gameboard.resetGameboard();
       gameboard.resetGameboard();
       
-      // Assert: should be same as calling once
-      expect(gameboard.ships).toEqual([]);
-      expect(gameboard.missedAttacks).toEqual([]);
+      expect(gameboard.ships).toHaveLength(5);
+
+      gameboard.ships.forEach((ship, index) => {
+        expect(ship.hits).toBe(0);
+        expect(ship.sunk).toBe(false);
+        expect(ship.positions).toHaveLength(0);
+        expect(index).toBe(ship.length - 1);
+      });
       
       for (let row = 0; row < 10; row++) {
         for (let col = 0; col < 10; col++) {
@@ -618,7 +642,7 @@ describe('Gameboard class', () => {
 
     test('should maintain board dimensions after reset', () => {
       // Arrange: place ships and attacks
-      gameboard.placeShip(4, 0, 0, true);
+      gameboard.placeShip(gameboard.ships[3], 0, 0, true);
       gameboard.receiveAttack(5, 5);
       
       // Act

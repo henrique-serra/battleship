@@ -2,9 +2,19 @@ import Ship from "./Ship.js";
 
 export default class Gameboard {
   constructor() {
-    this.defenseBoard = Array.from({ length: 10 }, (_) => Array.from({ length: 10 }, (_) => ({ ship: null, hitTaken: false })));
+    this.defenseBoard = this.createGameBoard();
     this.missedAttacks = [];
-    this.ships = [];
+    this.ships = [
+      new Ship(1),
+      new Ship(2),
+      new Ship(3),
+      new Ship(4),
+      new Ship(5),
+    ]
+  }
+
+  createGameBoard() {
+    return Array.from({ length: 10 }, (_) => Array.from({ length: 10 }, (_) => ({ ship: null, hitTaken: false })));
   }
 
   offLimits(length, row, col, horizontally) {
@@ -34,25 +44,21 @@ export default class Gameboard {
     if(length > 10 || length < 0) throw new Error('Size of ship not allowed!');
     if(this.offLimits(length, row, col, horizontally) || row < 0 || col < 0) throw new Error('Off limits!');
 
-    const positions = [];
-    
     if(horizontally) {
       for (let i = col; i < (col + length); i++) {
         if(this.defenseBoard[row][i].ship !== null) throw new Error('Position already occupied!');
-        positions.push([row, i]);
+        ship.positions.push([row, i])
       }
     } else {
       for (let i = row; i < (row + length); i++) {
         if(this.defenseBoard[i][col].ship !== null) throw new Error('Position already occupied!');
-        positions.push([i, col]);
+        ship.positions.push([i, col]);
       }
     }
 
-    for (const [r, c] of positions) {
+    for (const [r, c] of ship.positions) {
       this.defenseBoard[r][c].ship = ship;
     }
-
-    this.ships.push(ship);
 
     return ship;
   }
@@ -76,8 +82,6 @@ export default class Gameboard {
   }
 
   allShipsSunk() {
-    if(this.ships.length === 0) throw new Error('No ships on gameboard!');    
-
     for (const ship of this.ships) {
       if(!ship.isSunk()) return false;
     }
@@ -86,8 +90,14 @@ export default class Gameboard {
   }
 
   resetGameboard() {
-    this.defenseBoard = Array.from({ length: 10 }, (_) => Array.from({ length: 10 }, (_) => ({ ship: null, hitTaken: false })));
+    this.defenseBoard = this.createGameBoard();
     this.missedAttacks = [];
-    this.ships = [];
+    this.ships = [
+      new Ship(1),
+      new Ship(2),
+      new Ship(3),
+      new Ship(4),
+      new Ship(5),
+    ];
   }
 }
