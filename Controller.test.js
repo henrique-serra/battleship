@@ -108,6 +108,8 @@ describe('Controller', () => {
       // Place all ships randomly
       player1Gameboard.ships.forEach((ship) => {
         player1Gameboard.placeShipRandomly(ship);
+      });
+      player2Gameboard.ships.forEach((ship) => {
         player2Gameboard.placeShipRandomly(ship);
       });
 
@@ -120,15 +122,43 @@ describe('Controller', () => {
       expect(c.getWinner()).toBe(c.player1);
     });
 
-    describe('Player 2 wins', () => {
+    test('Player 2 wins', () => {
+      const player1Gameboard = c.player1.gameboard;
+      const player2Gameboard = c.player2.gameboard;
       
+      // Place all ships randomly
+      player1Gameboard.ships.forEach((ship) => {
+        player1Gameboard.placeShipRandomly(ship);
+      });
+      player2Gameboard.ships.forEach((ship) => {
+        player2Gameboard.placeShipRandomly(ship);
+      });
+
+      player1Gameboard.ships.forEach(({ positions }) => {
+        positions.forEach(([row, col]) => {
+          c.attack(c.player1, row, col);
+        });
+      });
+
+      expect(c.getWinner()).toBe(c.player2);
     });
 
-    describe('No winner', () => {
+    test('No winner', () => {
+      const player1Gameboard = c.player1.gameboard;
+      const player2Gameboard = c.player2.gameboard;
       
+      // Place all ships randomly
+      player1Gameboard.ships.forEach((ship) => {
+        player1Gameboard.placeShipRandomly(ship);
+      });
+      player2Gameboard.ships.forEach((ship) => {
+        player2Gameboard.placeShipRandomly(ship);
+      });
+
+      expect(c.getWinner()).toBeNull();
     });
 
-    describe('Error cases', () => {
+    test.skip('Error cases', () => {
       
     });
   });
