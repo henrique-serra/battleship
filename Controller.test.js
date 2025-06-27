@@ -94,18 +94,30 @@ describe('Controller', () => {
       expect(customController.player1.name).toBe('Alice');
       expect(customController.player2.attacks).toHaveLength(0);
     });
+
+    test.skip('should throw if gamePhase is not "attacks"', () => {
+
+    })
   });
 
   describe('getWinner', () => {
+    // Needs refactoring
     const getWinnerCases = {
       player1Wins: [
-        // Caso 1: Navio único do player2 afundado
         {
           player1Ships: [
-            { length: 2, row: 0, col: 0, horizontally: true }
+            { indexShip: 0, row: 0, col: 0, horizontally: true },
+            { indexShip: 1, row: 0, col: 0, horizontally: true },
+            { indexShip: 2, row: 0, col: 0, horizontally: true },
+            { indexShip: 3, row: 0, col: 0, horizontally: true },
+            { indexShip: 4, row: 0, col: 0, horizontally: true },
           ],
           player2Ships: [
-            { length: 1, row: 5, col: 5, horizontally: true }
+            { indexShip: 0, row: 0, col: 0, horizontally: true },
+            { indexShip: 1, row: 0, col: 0, horizontally: true },
+            { indexShip: 2, row: 0, col: 0, horizontally: true },
+            { indexShip: 3, row: 0, col: 0, horizontally: true },
+            { indexShip: 4, row: 0, col: 0, horizontally: true },
           ],
           attacks: [
             { target: 'player2', row: 5, col: 5 } // Afunda navio do player2
