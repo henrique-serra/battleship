@@ -149,6 +149,81 @@ describe('Gameboard class', () => {
     })
   });
 
+  describe('removeShip', () => {
+    const removeShipCases = {
+      success: [
+        {
+          ships: [
+            { shipIndex: 0, row: 0, col: 0, horizontally: true },
+            { shipIndex: 1, row: 1, col: 0, horizontally: true },
+            { shipIndex: 2, row: 2, col: 0, horizontally: true },
+            { shipIndex: 3, row: 3, col: 0, horizontally: true },
+            { shipIndex: 4, row: 4, col: 0, horizontally: true },
+          ]
+        },
+        {
+          ships: [
+            { shipIndex: 0, row: 0, col: 0, horizontally: false },
+            { shipIndex: 1, row: 0, col: 1, horizontally: false },
+            { shipIndex: 2, row: 0, col: 2, horizontally: false },
+            { shipIndex: 3, row: 0, col: 3, horizontally: false },
+            { shipIndex: 4, row: 0, col: 4, horizontally: false },
+          ]
+        }
+      ],
+    }
+
+    test('ship.positions should have length 0', () => {
+      removeShipCases.success.forEach(({ ships }) => {
+        ships.forEach((ship) => {
+          const { shipIndex, ...otherProps } = ship;
+          const gameboardShip = gameboard.ships[shipIndex];
+          gameboard.placeShip(gameboardShip, ...Object.values(otherProps));
+          // Before removal
+          expect(gameboardShip.positions).toHaveLength(gameboardShip.length);
+          // Removal
+          gameboard.removeShip(gameboardShip);
+          expect(gameboardShip.positions).toHaveLength(0);
+        });
+      })
+    });
+
+    test('defenseBoard should reflect removal of ship', () => {
+      removeShipCases.success.forEach(({ ships }) => {
+        ships.forEach(({ shipIndex, row, col, horizontally }) => {
+          const ship = gameboard.ships[shipIndex];
+          gameboard.placeShip(ship, row, col, horizontally);
+          const { positions } = ship;
+          // Removal
+          gameboard.removeShip(ship);
+          positions.forEach(([r, c]) => {
+            expect(gameboard.defenseBoard[r][c].ship).toBeNull();
+            expect(gameboard.defenseBoard[r][c].hitTaken).toBe(false);
+          })
+        })
+      })
+    });
+
+    test('should handle ship not on gameboard', () => {
+      const ship = new Ship(2);
+      
+      expect(() => {
+        gameboard.removeShip(ship);
+      }).toThrow('Ship not found on gameboard');
+    });
+
+    test('should handle already removed ship', () => {
+      const ship = gameboard.ships[0];
+      gameboard.placeShip(ship, 0, 0, true);
+      
+      gameboard.removeShip(ship);
+      
+      expect(() => {
+        gameboard.removeShip(ship);
+      }).toThrow('Ship not found on gameboard');
+    });
+  })
+
   describe('receiveAttack', () => {
     const receiveAttackCases = {
       success: {

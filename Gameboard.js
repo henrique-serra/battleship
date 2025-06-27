@@ -63,6 +63,18 @@ export default class Gameboard {
     return ship;
   }
 
+  removeShip(ship) {
+    if(!ship) throw new Error('Invalid ship');
+    if(!this.ships.includes(ship) || ship.positions.length === 0) throw new Error('Ship not found on gameboard');
+
+    ship.positions.forEach(([row, col]) => {
+      this.defenseBoard[row][col].ship = null;
+      this.defenseBoard[row][col].hitTaken = false;
+    });
+
+    ship.positions = [];
+  }
+
   receiveAttack(row, col) {
     if(
       row < 0 ||
