@@ -160,6 +160,16 @@ describe('Gameboard class', () => {
       }
     });
 
+    test("ship's positions length should equal the ship's length", () => {
+      for(let i = 0; i < 100; i++) {
+        const gameboard = new Gameboard();
+        gameboard.ships.forEach((ship) => {
+          gameboard.placeShipRandomly(ship);
+          expect(ship.positions).toHaveLength(ship.length);
+        })
+      }
+    })
+
     test('should have reasonable distribution', () => {
       const orientations = [];
 
