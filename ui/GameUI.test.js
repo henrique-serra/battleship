@@ -28,5 +28,33 @@ describe('GameUI', () => {
     expect(gameUI.enemyBoardEl.id).toBe('enemy-board');
     expect(gameUI.controller instanceof Controller).toBe(true);
     expect(gameUI.boardRenderer instanceof BoardRenderer).toBe(true);
+  });
+
+  describe('getShip', () => {
+    test('should return the correct ship', () => {
+      const c = new Controller();
+      const carrierDiv = document.querySelector('[data-ship-type="carrier"]');
+      const carrierShip = c.player1.gameboard.ships[4];
+      
+      const shipTypes = [
+        'patrol',
+        'submarine',
+        'destroyer',
+        'battleship',
+        'carrier',
+      ];
+
+      // Player 1
+      shipTypes.forEach((shipType, index) => {
+        const shipTypeDiv = document.querySelector(`[data-ship-type="${shipType}"]`);
+        expect(gameUI.getShip(shipTypeDiv, c.player1)).toBe(c.player1.gameboard.ships[index]);
+      });
+
+      // Player 2
+      shipTypes.forEach((shipType, index) => {
+        const shipTypeDiv = document.querySelector(`[data-ship-type="${shipType}"]`);
+        expect(gameUI.getShip(shipTypeDiv, c.player2)).toBe(c.player2.gameboard.ships[index]);
+      });
+    })
   })
 })

@@ -205,6 +205,38 @@ body {
     background: rgba(255,255,255,0.1);
     padding: 8px 12px;
     border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.ship-type:hover {
+    color: #212121;
+    background-color: #f0f0f0;
+    border-color: #999;
+    cursor: pointer;
+}
+
+.ship-type.selected {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #45a049;
+}
+
+/* Modal de orientação */
+.orientation-modal {
+    position: absolute;
+    background: white;
+    border: 2px solid #333;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: none;
+}
+
+.orientation-modal button {
+    margin: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
 }
 
 .ship-name {

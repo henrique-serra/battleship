@@ -12,11 +12,11 @@ export default class Ship {
 
   getShipType(length) {
     const shipTypes = {
-      5: 'carrier',
-      4: 'battleship',
-      3: 'destroyer',
-      2: 'submarine',
       1: 'patrol',
+      2: 'submarine',
+      3: 'destroyer',
+      4: 'battleship',
+      5: 'carrier',
     };
 
     return shipTypes[length];
