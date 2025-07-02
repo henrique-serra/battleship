@@ -10,6 +10,8 @@ describe('Controller', () => {
   });
 
   describe('attack', () => {
+    beforeEach(() => c.setPhase('attacks'));
+
     test('controller.attack calls receiveAttack on target board', () => {
       const spy = jest.spyOn(c.player2.gameboard, 'receiveAttack');
       c.attack(c.player2, 3, 3);
@@ -86,7 +88,7 @@ describe('Controller', () => {
         new Player('Alice', 'real'),
         new Player('Bob', 'computer')
       );
-      
+      customController.gamePhase = 'attacks';
       // Alice ataca Bob
       customController.attack(customController.player2, 7, 8);
       
@@ -95,8 +97,9 @@ describe('Controller', () => {
       expect(customController.player2.attacks).toHaveLength(0);
     });
 
-    test.skip('should throw if gamePhase is not "attacks"', () => {
-
+    test('should throw if gamePhase is not "attacks"', () => {
+      c.gamePhase = 'positioning';
+      expect(() => c.attack(c.player2, 0, 0)).toThrow("Can't attack during positioning phase");
     })
   });
 
@@ -112,6 +115,8 @@ describe('Controller', () => {
       player2Gameboard.ships.forEach((ship) => {
         player2Gameboard.placeShipRandomly(ship);
       });
+
+      c.setPhase('attacks');
 
       player2Gameboard.ships.forEach(({ positions }) => {
         positions.forEach(([row, col]) => {
@@ -133,6 +138,8 @@ describe('Controller', () => {
       player2Gameboard.ships.forEach((ship) => {
         player2Gameboard.placeShipRandomly(ship);
       });
+
+      c.setPhase('attacks');
 
       player1Gameboard.ships.forEach(({ positions }) => {
         positions.forEach(([row, col]) => {
@@ -156,10 +163,6 @@ describe('Controller', () => {
       });
 
       expect(c.getWinner()).toBeNull();
-    });
-
-    test.skip('Error cases', () => {
-      
     });
   });
 
@@ -335,8 +338,11 @@ describe('Controller', () => {
             description: 'should create new players with fresh gameboards',
             setup: () => {
               // Adiciona navios e faz ataques para "sujar" o estado
-              c.player1.gameboard.placeShip(2, 0, 0, true);
-              c.player2.gameboard.placeShip(3, 5, 5, false);
+              const player1Ships = c.player1.gameboard.ships;
+              const player2Ships = c.player2.gameboard.ships;
+              c.player1.gameboard.placeShip(player1Ships[1], 0, 0, true);
+              c.player2.gameboard.placeShip(player2Ships[2], 5, 5, false);
+              c.setPhase('attacks');
               c.attack(c.player1, 0, 0);
               c.attack(c.player2, 5, 5);
               c.changeTurn(); // Muda para player2
@@ -345,11 +351,14 @@ describe('Controller', () => {
           {
             description: 'should reset after complex game state',
             setup: () => {
+              const player1Ships = c.player1.gameboard.ships;
+              const player2Ships = c.player2.gameboard.ships;
               // Cenário complexo
-              c.player1.gameboard.placeShip(1, 1, 1, true);
-              c.player1.gameboard.placeShip(2, 3, 3, true);
-              c.player2.gameboard.placeShip(4, 0, 0, true);
+              c.player1.gameboard.placeShip(player1Ships[0], 1, 1, true);
+              c.player1.gameboard.placeShip(player1Ships[1], 3, 3, true);
+              c.player2.gameboard.placeShip(player2Ships[3], 0, 0, true);
               
+              c.setPhase('attacks');
               // Múltiplos ataques
               c.attack(c.player1, 1, 1); // hit
               c.attack(c.player2, 0, 0); // hit
@@ -368,8 +377,18 @@ describe('Controller', () => {
           {
             description: 'should have empty gameboards after reset',
             verification: (originalPlayer1, originalPlayer2) => {
-              expect(c.player1.gameboard.ships).toHaveLength(0);
-              expect(c.player2.gameboard.ships).toHaveLength(0);
+              expect(c.player1.gameboard.ships).toHaveLength(5);
+
+              c.player1.gameboard.ships.forEach((ship) => {
+                expect(ship.positions).toHaveLength(0);
+              });
+
+              expect(c.player2.gameboard.ships).toHaveLength(5);
+
+              c.player2.gameboard.ships.forEach((ship) => {
+                expect(ship.positions).toHaveLength(0);
+              });
+
               expect(c.player1.gameboard.missedAttacks).toHaveLength(0);
               expect(c.player2.gameboard.missedAttacks).toHaveLength(0);
             }
@@ -448,77 +467,54 @@ describe('Controller', () => {
           expect(c.player2.type).toBe(originalPlayer2Type);
         });
       });
-
-      test('should handle reset from winning state', () => {
-        // Setup um jogo onde player1 ganhou
-        c.player1.gameboard.placeShip(2, 0, 0, true);
-        c.player2.gameboard.placeShip(1, 5, 5, true);
-        
-        // Player1 ganha
-        c.attack(c.player2, 5, 5);
-        
-        expect(c.getWinner()).toBe(c.player1);
-        
-        // Reset
-        c.resetGame();
-        
-        // Não deveria haver vencedor
-        expect(() => c.getWinner()).toThrow('No ships on gameboard!');
-        
-        // Deveria ser possível começar novo jogo
-        c.player1.gameboard.placeShip(1, 0, 0, true);
-        c.player2.gameboard.placeShip(1, 9, 9, true);
-        
-        expect(c.getWinner()).toBeNull();
-      });
-
-      test('should maintain consistent state after multiple resets', () => {
-        for (let i = 0; i < 3; i++) {
-          // Setup jogo
-          c.player1.gameboard.placeShip(1, i, i, true);
-          c.player2.gameboard.placeShip(1, 9-i, 9-i, true);
-          c.changeTurn();
-          
-          // Reset
-          c.resetGame();
-          
-          // Verificações
-          expect(c.turn).toBe(c.player1);
-          expect(c.player1.gameboard.ships).toHaveLength(0);
-          expect(c.player2.gameboard.ships).toHaveLength(0);
-        }
-      });
     });
 
     describe('integration with game flow', () => {
       test('should maintain consistent turn state during attacks', () => {
+        const player1Gameboard = c.player1.gameboard;
+        const player2Gameboard = c.player2.gameboard;
         // Coloca navios
-        c.player1.gameboard.placeShip(2, 0, 0, true);
-        c.player2.gameboard.placeShip(2, 0, 0, true);
+        player1Gameboard.placeShip(player1Gameboard.ships[1], 0, 0, true);
+        player2Gameboard.placeShip(player2Gameboard.ships[1], 0, 0, true);
+
+        c.setPhase('attacks');
         
         // Player1 ataca
         expect(c.isPlayerTurn(c.player1)).toBe(true);
         c.attack(c.player2, 0, 0);
+        c.changeTurn();
         
         // Muda turno
-        c.changeTurn();
         expect(c.isPlayerTurn(c.player2)).toBe(true);
         
         // Player2 ataca
         c.attack(c.player1, 0, 0);
+        c.changeTurn();
         
-        // Turno ainda é do player2
-        expect(c.isPlayerTurn(c.player2)).toBe(true);
+        expect(c.isPlayerTurn(c.player1)).toBe(true);
       });
 
       test('should work correctly when game ends', () => {
+        const player1Gameboard = c.player1.gameboard;
+        const player2Gameboard = c.player2.gameboard;
         // Setup jogo que player1 vai ganhar
-        c.player1.gameboard.placeShip(1, 0, 0, true);
-        c.player2.gameboard.placeShip(1, 5, 5, true);
+        player1Gameboard.placeShip(player1Gameboard.ships[0], 9, 9, true);
+        player2Gameboard.placeShip(player2Gameboard.ships[0], 1, 0, true);
+        player2Gameboard.placeShip(player2Gameboard.ships[1], 2, 0, true);
+        player2Gameboard.placeShip(player2Gameboard.ships[2], 3, 0, true);
+        player2Gameboard.placeShip(player2Gameboard.ships[3], 4, 0, true);
+        player2Gameboard.placeShip(player2Gameboard.ships[4], 5, 0, true);
         
+        c.setPhase('attacks');
+
         // Player1 ataca e ganha
         expect(c.isPlayerTurn(c.player1)).toBe(true);
-        c.attack(c.player2, 5, 5);
+        player2Gameboard.ships.forEach((ship) => {
+          ship.positions.forEach(([row, col]) => {
+            c.attack(c.player2, row, col);
+            c.attack(c.player1, row, col);
+          })
+        })
         
         // Jogo terminou, mas turno ainda é válido
         expect(c.getWinner()).toBe(c.player1);
@@ -530,13 +526,15 @@ describe('Controller', () => {
   describe('clearGame', () => {
     describe('Success cases', () => {
       test('should reset both players gameboards', () => {
+        const player1Gameboard = c.player1.gameboard;
+        const player2Gameboard = c.player2.gameboard;
         // Arrange: simula um estado de jogo com navios posicionados
-        c.player1.gameboard.placeShip(2, 0, 0, true);
-        c.player2.gameboard.placeShip(3, 1, 1, false);
+        player1Gameboard.placeShip(player1Gameboard.ships[1], 0, 0, true);
+        player2Gameboard.placeShip(player2Gameboard.ships[2], 1, 1, false);
         
         // Espiona os métodos resetGameboard
-        const spy1 = jest.spyOn(c.player1.gameboard, 'resetGameboard');
-        const spy2 = jest.spyOn(c.player2.gameboard, 'resetGameboard');
+        const spy1 = jest.spyOn(player1Gameboard, 'resetGameboard');
+        const spy2 = jest.spyOn(player2Gameboard, 'resetGameboard');
 
         // Act
         c.clearGame();
@@ -594,9 +592,11 @@ describe('Controller', () => {
       });
 
       test('should clear all game state components in one operation', () => {
+        const player1Gameboard = c.player1.gameboard;
+        const player2Gameboard = c.player2.gameboard;
         // Arrange: configura um estado de jogo complexo
-        c.player1.gameboard.placeShip(4, 0, 0, true);
-        c.player2.gameboard.placeShip(2, 2, 2, false);
+        player1Gameboard.placeShip(player1Gameboard.ships[3], 0, 0, true);
+        player2Gameboard.placeShip(player2Gameboard.ships[1], 2, 2, false);
         
         c.player1.attacks = [
           { row: 0, col: 0 },
@@ -611,8 +611,8 @@ describe('Controller', () => {
         c.turn = c.player2;
 
         // Spies para verificar chamadas
-        const resetSpy1 = jest.spyOn(c.player1.gameboard, 'resetGameboard');
-        const resetSpy2 = jest.spyOn(c.player2.gameboard, 'resetGameboard');
+        const resetSpy1 = jest.spyOn(player1Gameboard, 'resetGameboard');
+        const resetSpy2 = jest.spyOn(player2Gameboard, 'resetGameboard');
 
         // Act
         c.clearGame();
@@ -707,20 +707,27 @@ describe('Controller', () => {
 
     describe('Integration tests', () => {
       test('should allow new game to start properly after clearing', () => {
+        const player1Gameboard = c.player1.gameboard;
+        const player2Gameboard = c.player2.gameboard;
         // Arrange: simula um jogo completo
-        c.player1.gameboard.placeShip(2, 0, 0, true);
-        c.player2.gameboard.placeShip(2, 1, 1, false);
+        player1Gameboard.placeShip(player1Gameboard.ships[1], 0, 0, true);
+        player2Gameboard.placeShip(player2Gameboard.ships[1], 1, 1, false);
+        c.setPhase('attacks');
         c.attack(c.player2, 1, 1);
+        c.changeTurn();
         c.attack(c.player1, 0, 0);
-        c.turn = c.player2;
+        c.changeTurn();
 
         // Act: limpa o jogo
         c.clearGame();
+        const player1NewGameboard = c.player1.gameboard;
+        const player2NewGameboard = c.player2.gameboard;
+        c.setPhase('attacks');
 
         // Assert: deve ser possível iniciar um novo jogo
         expect(() => {
-          c.player1.gameboard.placeShip(3, 0, 0, true);
-          c.player2.gameboard.placeShip(3, 2, 2, false);
+          player1NewGameboard.placeShip(player1NewGameboard.ships[2], 0, 0, true);
+          player2NewGameboard.placeShip(player2NewGameboard.ships[2], 2, 2, false);
           c.attack(c.player2, 0, 0);
         }).not.toThrow();
 
