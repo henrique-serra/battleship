@@ -5,9 +5,28 @@ class Controller {
     this.player1 = player1;
     this.player2 = player2;
     this.turn = this.player1;
+    this.gamePhase = 'positioning';
+    this.phases = ['positioning', 'attacks', 'end'];
+    this.currentPhaseIndex = 0;
+  }
+
+  setPhase(phaseName) {
+    if (this.phases.includes(phaseName)) {
+      this.gamePhase = phaseName;
+      this.currentPhaseIndex = this.phases.indexOf(phaseName);
+    }
+  }
+
+  nextPhase() {
+    if (this.currentPhaseIndex < this.phases.length - 1) {
+      this.currentPhaseIndex++;
+      this.gamePhase = this.phases[this.currentPhaseIndex];
+    }
   }
 
   attack(attacked, row, col) {
+    if(this.gamePhase !== 'attacks') throw new Error("Can't attack during positioning phase");
+    
     const attacker = attacked === this.player1 ? this.player2 : this.player1;
     
     attacked.gameboard.receiveAttack(row, col);
@@ -42,6 +61,7 @@ class Controller {
     this.player2 = new Player(player2Name, player2Type);
     
     this.turn = this.player1;
+    this.setPhase('positioning');
   }
 
   clearGame() {
@@ -51,6 +71,7 @@ class Controller {
     this.player2.attacks = [];
 
     this.turn = this.player1;
+    this.setPhase('positioning');
   }
 }
 

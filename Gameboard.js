@@ -63,6 +63,30 @@ export default class Gameboard {
     return ship;
   }
 
+  placeShipRandomly(ship) {
+    const horizontally = Math.random() < 0.5;
+    const maxRow = horizontally ? 10 : (10 - ship.length);
+    const maxCol = horizontally ? (10 - ship.length) : 10;
+
+    const row = Math.floor(Math.random() * (maxRow));
+    const col = Math.floor(Math.random() * (maxCol));
+
+    if(horizontally) {
+      for(let i = col; i < (col + ship.length); i++) {
+        const shipOnBoard = this.defenseBoard[row][i].ship;
+        if(shipOnBoard) return this.placeShipRandomly(ship);
+      }
+    } else {
+      for(let i = row; i < (row + ship.length); i++) {
+        const shipOnBoard = this.defenseBoard[i][col].ship;
+        if(shipOnBoard) return this.placeShipRandomly(ship);
+      }
+    }
+
+    this.placeShip(ship, row, col, horizontally);
+    return { row, col, horizontally };
+  }
+
   removeShip(ship) {
     if(!ship) throw new Error('Invalid ship');
     if(!this.ships.includes(ship) || ship.positions.length === 0) throw new Error('Ship not found on gameboard');
