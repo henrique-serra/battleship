@@ -59,8 +59,8 @@ describe('BoardRenderer', () => {
       test('should have correct board titles', () => {
         const titles = container.querySelectorAll('.board-title');
         expect(titles).toHaveLength(2);
-        expect(titles[0].textContent).toBe('🛡️ Sua Frota');
-        expect(titles[1].textContent).toBe('🎯 Campo Inimigo');
+        expect(titles[0].textContent).toBe('🛡️ Your Fleet');
+        expect(titles[1].textContent).toBe('🎯 Enemy Field');
       });
     });
 

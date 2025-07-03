@@ -5,6 +5,7 @@
 import GameUI from './GameUI.js';
 import Controller from '../Controller.js';
 import BoardRenderer from './BoardRenderer.js';
+import Ship from '../Ship.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -22,27 +23,16 @@ describe('GameUI', () => {
     test('should return the correct ship', () => {
       const c = gameUI.controller;
       const carrierDiv = document.querySelector('[data-ship-type="carrier"]');
-      const carrierShip = c.player1.gameboard.ships[4];
-      
-      const shipTypes = [
-        'patrol',
-        'submarine',
-        'destroyer',
-        'battleship',
-        'carrier',
-      ];
+      const carrierShip = c.player1.gameboard.ships.find(({ shipInfo }) => shipInfo.name = 'carrier');
 
-      // Player 1
-      shipTypes.forEach((shipType, index) => {
-        const shipTypeDiv = document.querySelector(`[data-ship-type="${shipType}"]`);
-        expect(gameUI.getShip(shipTypeDiv, c.player1)).toBe(c.player1.gameboard.ships[index]);
-      });
-
-      // Player 2
-      shipTypes.forEach((shipType, index) => {
-        const shipTypeDiv = document.querySelector(`[data-ship-type="${shipType}"]`);
-        expect(gameUI.getShip(shipTypeDiv, c.player2)).toBe(c.player2.gameboard.ships[index]);
-      });
+      const players = [c.player1, c.player2];
+      players.forEach((player, index) => {
+        Ship.shipCatalog.forEach(({ name }, index) => {
+          const shipTypeDiv = document.querySelector(`[data-ship-type="${name}"]`);
+          const shipOnGameBoard = player.gameboard.ships.find(({ shipInfo }) => shipInfo.name === name);
+          expect(gameUI.getShip(shipTypeDiv, player)).toBe(shipOnGameBoard);
+        });
+      })
     });
 
     test('should throw if first param is not a div', () => {
