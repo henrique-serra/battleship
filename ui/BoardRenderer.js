@@ -1,3 +1,19 @@
+import Gameboard from "../Gameboard.js";
+
+const gameboard = new Gameboard();
+const ships = gameboard.ships;
+
+function getShipCount(ships) {
+  const shipCount = ships.reduce((newObj, ship) => {
+    newObj[ship] = (newObj[ship] || 0) + 1;
+    return newObj;
+  }, {});
+
+  return shipCount;
+}
+
+const shipCount = getShipCount(ships);
+
 export default class BoardRenderer {
   constructor(playerContainer, opponentContainer) {
     this.playerContainer = playerContainer;
@@ -44,6 +60,7 @@ export default class BoardRenderer {
             <div class="ship-type" data-ship-type="carrier">
               <span class="ship-name">🛳️ Carrier (5)</span>
               <span class="btn-random" title="Randomly position ship">🔀</span>
+              <span class="ship-count">1</span>
             </div>
             <div class="ship-type" data-ship-type="battleship">
               <span class="ship-name">🚢 Battleship (4)</span>

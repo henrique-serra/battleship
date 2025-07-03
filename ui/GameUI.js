@@ -47,7 +47,7 @@ class GameUI {
 
     const shipType = shipTypeDiv.dataset.shipType;
 
-    return player.gameboard.ships.filter((ship) => ship.type === shipType)[0];
+    return player.gameboard.ships.find(({ shipInfo }) => shipInfo.name === shipType);
   }
 
   placeShipOnBoard(ship) {
@@ -113,7 +113,7 @@ class GameUI {
         this.controller.player1.gameboard.placeShip(this.selectedShip, row, col);
         this.placeShipOnBoard(this.selectedShip, '1');
       } else if (
-        // Removing from board
+        // Removing from board with ship selected
         this.controller.gamePhase === 'positioning' &&
         this.selectedShip &&
         this.selectedShip.positions.length !== 0 &&
@@ -122,6 +122,15 @@ class GameUI {
       ) {
         this.removeShipOnBoard(this.selectedShip);
         this.controller.player1.gameboard.removeShip(this.selectedShip);
+      } else if (
+        // Removing from board with no ship selected
+        this.controller.gamePhase === 'positioning' &&
+        !this.selectedShip &&
+        gameCell.classList.contains('ship')
+      ) {
+        const shipOnCell = this.controller.player1.gameboard.defenseBoard[row][col].ship;
+        this.removeShipOnBoard(shipOnCell);
+        this.controller.player1.gameboard.removeShip(shipOnCell);
       } else if (
         // Repositioning
         this.controller.gamePhase === 'positioning' &&

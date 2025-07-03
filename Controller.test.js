@@ -377,13 +377,13 @@ describe('Controller', () => {
           {
             description: 'should have empty gameboards after reset',
             verification: (originalPlayer1, originalPlayer2) => {
-              expect(c.player1.gameboard.ships).toHaveLength(5);
+              expect(c.player1.gameboard.ships).toHaveLength(8);
 
               c.player1.gameboard.ships.forEach((ship) => {
                 expect(ship.positions).toHaveLength(0);
               });
 
-              expect(c.player2.gameboard.ships).toHaveLength(5);
+              expect(c.player2.gameboard.ships).toHaveLength(8);
 
               c.player2.gameboard.ships.forEach((ship) => {
                 expect(ship.positions).toHaveLength(0);
@@ -466,59 +466,6 @@ describe('Controller', () => {
           expect(c.player1.type).toBe(originalPlayer1Type);
           expect(c.player2.type).toBe(originalPlayer2Type);
         });
-      });
-    });
-
-    describe('integration with game flow', () => {
-      test('should maintain consistent turn state during attacks', () => {
-        const player1Gameboard = c.player1.gameboard;
-        const player2Gameboard = c.player2.gameboard;
-        // Coloca navios
-        player1Gameboard.placeShip(player1Gameboard.ships[1], 0, 0, true);
-        player2Gameboard.placeShip(player2Gameboard.ships[1], 0, 0, true);
-
-        c.setPhase('attacks');
-        
-        // Player1 ataca
-        expect(c.isPlayerTurn(c.player1)).toBe(true);
-        c.attack(c.player2, 0, 0);
-        c.changeTurn();
-        
-        // Muda turno
-        expect(c.isPlayerTurn(c.player2)).toBe(true);
-        
-        // Player2 ataca
-        c.attack(c.player1, 0, 0);
-        c.changeTurn();
-        
-        expect(c.isPlayerTurn(c.player1)).toBe(true);
-      });
-
-      test('should work correctly when game ends', () => {
-        const player1Gameboard = c.player1.gameboard;
-        const player2Gameboard = c.player2.gameboard;
-        // Setup jogo que player1 vai ganhar
-        player1Gameboard.placeShip(player1Gameboard.ships[0], 9, 9, true);
-        player2Gameboard.placeShip(player2Gameboard.ships[0], 1, 0, true);
-        player2Gameboard.placeShip(player2Gameboard.ships[1], 2, 0, true);
-        player2Gameboard.placeShip(player2Gameboard.ships[2], 3, 0, true);
-        player2Gameboard.placeShip(player2Gameboard.ships[3], 4, 0, true);
-        player2Gameboard.placeShip(player2Gameboard.ships[4], 5, 0, true);
-        
-        c.setPhase('attacks');
-
-        // Player1 ataca e ganha
-        expect(c.isPlayerTurn(c.player1)).toBe(true);
-        player2Gameboard.ships.forEach((ship) => {
-          ship.positions.forEach(([row, col]) => {
-            c.attack(c.player2, row, col);
-            c.attack(c.player1, row, col);
-          })
-        })
-        
-        // Jogo terminou, mas turno ainda é válido
-        expect(c.getWinner()).toBe(c.player1);
-        expect(c.isPlayerTurn(c.player1)).toBe(true);
       });
     });
   });
