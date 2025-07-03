@@ -34,16 +34,40 @@ class GameUI {
   }
 
   getShip(shipTypeDiv, player) {
+    if(!(shipTypeDiv instanceof HTMLDivElement)) throw new Error('First param must be a div');
+    if(!shipTypeDiv.classList.contains('ship-type')) throw new Error('Div must contain class "ship-type"');
+
     const shipType = shipTypeDiv.dataset.shipType;
 
     return player.gameboard.ships.filter((ship) => ship.type === shipType)[0];
   }
 
-  placeShipOnBoard(ship, playerNumber) {
+  placeShipOnBoard(ship) {
+    let playerNumber;
+    if (this.controller.player1.gameboard.ships.includes(ship)) {
+      playerNumber = '1';
+    } else if (this.controller.player2.gameboard.ships.includes(ship)) {
+      playerNumber = '2';
+    } else return null;
+    
     ship.positions.forEach(([row, col]) => {
       const cell = this[`player${playerNumber}BoardEl`].querySelector(`[data-row="${row}"][data-col="${col}"]`);
 
       cell.classList.add('ship');
+    })
+  }
+
+  removeShipOnBoard(ship) {
+    let playerNumber;
+    if (this.controller.player1.gameboard.ships.includes(ship)) {
+      playerNumber = '1';
+    } else if (this.controller.player2.gameboard.ships.includes(ship)) {
+      playerNumber = '2';
+    } else return null;
+    
+    ship.positions.forEach(([row, col]) => {
+      const cell = this[`player${playerNumber}BoardEl`].querySelector(`[data-row="${row}"][data-col="${col}"]`);
+      cell.classList.remove('ship');
     })
   }
 
@@ -72,11 +96,20 @@ class GameUI {
       const row = Number(gameCell.dataset.row);
       const col = Number(gameCell.dataset.col);
 
-      if(
+      if (
         this.controller.gamePhase === 'positioning' &&
-        this.selectedShip
-        // this.selectedShip.positions.length !== 0
+        this.selectedShip &&
+        this.selectedShip.positions.length === 0
       ) {
+        this.controller.player1.gameboard.placeShip(this.selectedShip, row, col);
+        this.placeShipOnBoard(this.selectedShip, '1');
+      } else if (
+        this.controller.gamePhase === 'positioning' &&
+        this.selectedShip &&
+        this.selectedShip.positions.length !== 0
+      ) {
+        this.removeShipOnBoard(this.selectedShip);
+        this.controller.player1.gameboard.removeShip(this.selectedShip);
         this.controller.player1.gameboard.placeShip(this.selectedShip, row, col);
         this.placeShipOnBoard(this.selectedShip, '1');
       }

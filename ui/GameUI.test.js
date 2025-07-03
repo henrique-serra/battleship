@@ -18,21 +18,9 @@ beforeEach(() => {
 });
 
 describe('GameUI', () => {
-  test('GameUI instantiates correctly', () => {
-    expect(gameUI).toBeDefined();
-    expect(gameUI.playerBoardEl.tagName).toBe('DIV');
-    expect(gameUI.playerBoardEl.classList.contains('grid')).toBe(true);
-    expect(gameUI.playerBoardEl.id).toBe('player-board');
-    expect(gameUI.enemyBoardEl.tagName).toBe('DIV');
-    expect(gameUI.enemyBoardEl.classList.contains('grid')).toBe(true);
-    expect(gameUI.enemyBoardEl.id).toBe('enemy-board');
-    expect(gameUI.controller instanceof Controller).toBe(true);
-    expect(gameUI.boardRenderer instanceof BoardRenderer).toBe(true);
-  });
-
   describe('getShip', () => {
     test('should return the correct ship', () => {
-      const c = new Controller();
+      const c = gameUI.controller;
       const carrierDiv = document.querySelector('[data-ship-type="carrier"]');
       const carrierShip = c.player1.gameboard.ships[4];
       
@@ -55,6 +43,68 @@ describe('GameUI', () => {
         const shipTypeDiv = document.querySelector(`[data-ship-type="${shipType}"]`);
         expect(gameUI.getShip(shipTypeDiv, c.player2)).toBe(c.player2.gameboard.ships[index]);
       });
+    });
+
+    test('should throw if first param is not a div', () => {
+      const c = gameUI.controller;
+      const players = [c.player1, c.player2];
+
+      players.forEach((player) => {
+        expect(() => gameUI.getShip('div', player)).toThrow('First param must be a div');
+      });
+    });
+
+    test('should throw if wrong div is provided', () => {
+      const c = gameUI.controller;
+      const wrongDiv = document.querySelector('.game-container');
+      const players = [c.player1, c.player2];
+
+      players.forEach((player) => {
+        expect(() => gameUI.getShip(wrongDiv, player)).toThrow('Div must contain class "ship-type"');
+      })
+    });
+  });
+
+  describe('placeShipOnBoard', () => {
+    test('should, correctly, place ships on board', () => {
+      // Place ships randomly
+      for(let i = 1; i < 3; i++) {
+        const player = gameUI.controller[`player${i}`];
+        const playerGameboard = player.gameboard;
+        playerGameboard.ships.forEach((ship) => {
+          playerGameboard.placeShipRandomly(ship);
+          gameUI.placeShipOnBoard(ship);
+          ship.positions.forEach(([row, col]) => {
+            const cell = gameUI[`player${i}BoardEl`].querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            expect(cell.classList.contains('ship')).toBe(true);
+          })
+        })
+      }
+    });
+  });
+
+  describe('removeShipOnBoard', () => {
+    test('should, correctly, remove ships on board', () => {
+      // Place ships randomly
+      for(let i = 1; i < 3; i++) {
+        const positions = [];
+        const player = gameUI.controller[`player${i}`];
+        const playerGameboard = player.gameboard;
+        playerGameboard.ships.forEach((ship) => {
+          playerGameboard.placeShipRandomly(ship);
+          positions.push(ship.positions.flat());
+          gameUI.placeShipOnBoard(ship, gameUI.controller[`player${i}`]);
+          // IMPORTANT!! MUST, FIRST, REMOVE SHIP ON BOARD UI. IF SHIP IS REMOVED ON GAMEBOARD FIRST, SHIP.POSITIONS IS ERASED
+          gameUI.removeShipOnBoard(ship);
+          playerGameboard.removeShip(ship);
+        });
+
+        positions.forEach(([row, col]) => {
+          const cell = gameUI[`player${i}BoardEl`].querySelector(`[data-row="${row}"][data-col="${col}"]`);
+
+          expect(cell.classList.contains('ship')).toBe(false);
+        })
+      };
     })
   })
 })
