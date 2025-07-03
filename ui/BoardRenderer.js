@@ -42,24 +42,28 @@ export default class BoardRenderer {
           ${createGrid('player-board')}
           <div class="ships-remaining">
             <div class="ship-type" data-ship-type="carrier">
-                <span class="ship-name">🛳️ Carrier (5)</span>
-                <span class="ship-count">1</span>
+              <span class="ship-name">🛳️ Carrier (5)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
             <div class="ship-type" data-ship-type="battleship">
-                <span class="ship-name">🚢 Battleship (4)</span>
-                <span class="ship-count">1</span>
+              <span class="ship-name">🚢 Battleship (4)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
             <div class="ship-type" data-ship-type="destroyer">
-                <span class="ship-name">🛥️ Destroyer (3)</span>
-                <span class="ship-count">1</span>
+              <span class="ship-name">🛥️ Destroyer (3)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
             <div class="ship-type" data-ship-type="submarine">
-                <span class="ship-name">🚤 Submarine (2)</span>
-                <span class="ship-count">1</span>
+              <span class="ship-name">🚤 Submarine (2)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
             <div class="ship-type" data-ship-type="patrol">
-                <span class="ship-name">⛵ Patrol (1)</span>
-                <span class="ship-count">1</span>
+              <span class="ship-name">⛵ Patrol (1)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
+            </div>
+            <div class="fleet-controls-section">
+              <button class="btn-clear-all" title="Remove all ships from board">🧹</button>
+              <button class="btn-random-all" title="Randomly position all ships">🔀</button>
             </div>
           </div>
         </div>
@@ -68,24 +72,28 @@ export default class BoardRenderer {
           ${createGrid('enemy-board')}
           <div class="ships-remaining">
             <div class="ship-type" data-ship-type="carrier">
-                <span class="ship-name">🛳️ Carrier (5)</span>
-                <span class="ship-count">1</span>
+              <span class="ship-name">🛳️ Carrier (5)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
             <div class="ship-type" data-ship-type="battleship">
-                <span class="ship-name">🚢 Battleship (4)</span>
-                <span class="ship-count">1</span>
+              <span class="ship-name">🚢 Battleship (4)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
             <div class="ship-type" data-ship-type="destroyer">
-                <span class="ship-name">🛥️ Destroyer (3)</span>
-                <span class="ship-count">1</span>
+              <span class="ship-name">🛥️ Destroyer (3)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
             <div class="ship-type" data-ship-type="submarine">
-                <span class="ship-name">🚤 Submarine (2)</span>
-                <span class="ship-count">1</span>
+              <span class="ship-name">🚤 Submarine (2)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
             <div class="ship-type" data-ship-type="patrol">
-                <span class="ship-name">⛵ Patrol (1)</span>
-                <span class="ship-count">1</span>
+              <span class="ship-name">⛵ Patrol (1)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
+            </div>
+            <div class="fleet-controls-section">
+              <button class="btn-clear-all" title="Remove all ships from board">🧹</button>
+              <button class="btn-random-all" title="Randomly position all ships">🔀</button>
             </div>
           </div>
         </div>
