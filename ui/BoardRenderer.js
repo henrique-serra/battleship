@@ -1,3 +1,19 @@
+import Gameboard from "../Gameboard.js";
+
+const gameboard = new Gameboard();
+const ships = gameboard.ships;
+
+function getShipCount(ships) {
+  const shipCount = ships.reduce((newObj, ship) => {
+    newObj[ship] = (newObj[ship] || 0) + 1;
+    return newObj;
+  }, {});
+
+  return shipCount;
+}
+
+const shipCount = getShipCount(ships);
+
 export default class BoardRenderer {
   constructor(playerContainer, opponentContainer) {
     this.playerContainer = playerContainer;
@@ -38,46 +54,63 @@ export default class BoardRenderer {
     return `
       <div class="game-boards">
         <div class="board-section">
-          <h2 class="board-title">🛡️ Sua Frota</h2>
+          <h2 class="board-title">🛡️ Your Fleet</h2>
           ${createGrid('player-board')}
           <div class="ships-remaining">
-            <div class="ship-type">
-                <span class="ship-name">🚢 Porta-aviões (5)</span>
-                <span class="ship-count">1</span>
+            <div class="ship-type" data-ship-type="carrier">
+              <span class="ship-name">🛳️ Carrier (5)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
+              <span class="ship-count">1</span>
             </div>
-            <div class="ship-type">
-                <span class="ship-name">🛥️ Cruzador (4)</span>
-                <span class="ship-count">1</span>
+            <div class="ship-type" data-ship-type="battleship">
+              <span class="ship-name">🚢 Battleship (4)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
-            <div class="ship-type">
-                <span class="ship-name">⛵ Contratorpedeiro (3)</span>
-                <span class="ship-count">2</span>
+            <div class="ship-type" data-ship-type="destroyer">
+              <span class="ship-name">🛥️ Destroyer (3)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
-            <div class="ship-type">
-                <span class="ship-name">🚤 Submarino (2)</span>
-                <span class="ship-count">1</span>
+            <div class="ship-type" data-ship-type="submarine">
+              <span class="ship-name">🚤 Submarine (2)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
+            </div>
+            <div class="ship-type" data-ship-type="patrol">
+              <span class="ship-name">⛵ Patrol (1)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
+            </div>
+            <div class="fleet-controls-section">
+              <button class="btn-clear-all" title="Remove all ships from board">🧹</button>
+              <button class="btn-random-all" title="Randomly position all ships">🔀</button>
             </div>
           </div>
         </div>
         <div class="board-section">
-          <h2 class="board-title">🎯 Campo Inimigo</h2>
+          <h2 class="board-title">🎯 Enemy Field</h2>
           ${createGrid('enemy-board')}
           <div class="ships-remaining">
-            <div class="ship-type">
-                <span class="ship-name">🚢 Porta-aviões (5)</span>
-                <span class="ship-count">1</span>
+            <div class="ship-type" data-ship-type="carrier">
+              <span class="ship-name">🛳️ Carrier (5)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
-            <div class="ship-type">
-                <span class="ship-name">🛥️ Cruzador (4)</span>
-                <span class="ship-count">1</span>
+            <div class="ship-type" data-ship-type="battleship">
+              <span class="ship-name">🚢 Battleship (4)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
-            <div class="ship-type">
-                <span class="ship-name">⛵ Contratorpedeiro (3)</span>
-                <span class="ship-count">2</span>
+            <div class="ship-type" data-ship-type="destroyer">
+              <span class="ship-name">🛥️ Destroyer (3)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
             </div>
-            <div class="ship-type">
-                <span class="ship-name">🚤 Submarino (2)</span>
-                <span class="ship-count">1</span>
+            <div class="ship-type" data-ship-type="submarine">
+              <span class="ship-name">🚤 Submarine (2)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
+            </div>
+            <div class="ship-type" data-ship-type="patrol">
+              <span class="ship-name">⛵ Patrol (1)</span>
+              <span class="btn-random" title="Randomly position ship">🔀</span>
+            </div>
+            <div class="fleet-controls-section">
+              <button class="btn-clear-all" title="Remove all ships from board">🧹</button>
+              <button class="btn-random-all" title="Randomly position all ships">🔀</button>
             </div>
           </div>
         </div>

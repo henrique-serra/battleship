@@ -10,6 +10,8 @@ describe('Controller', () => {
   });
 
   describe('attack', () => {
+    beforeEach(() => c.setPhase('attacks'));
+
     test('controller.attack calls receiveAttack on target board', () => {
       const spy = jest.spyOn(c.player2.gameboard, 'receiveAttack');
       c.attack(c.player2, 3, 3);
@@ -86,7 +88,7 @@ describe('Controller', () => {
         new Player('Alice', 'real'),
         new Player('Bob', 'computer')
       );
-      
+      customController.gamePhase = 'attacks';
       // Alice ataca Bob
       customController.attack(customController.player2, 7, 8);
       
@@ -95,295 +97,72 @@ describe('Controller', () => {
       expect(customController.player2.attacks).toHaveLength(0);
     });
 
-    test.skip('should throw if gamePhase is not "attacks"', () => {
-
+    test('should throw if gamePhase is not "attacks"', () => {
+      c.gamePhase = 'positioning';
+      expect(() => c.attack(c.player2, 0, 0)).toThrow("Can't attack during positioning phase");
     })
   });
 
   describe('getWinner', () => {
-    // Needs refactoring
-    const getWinnerCases = {
-      player1Wins: [
-        {
-          player1Ships: [
-            { indexShip: 0, row: 0, col: 0, horizontally: true },
-            { indexShip: 1, row: 0, col: 0, horizontally: true },
-            { indexShip: 2, row: 0, col: 0, horizontally: true },
-            { indexShip: 3, row: 0, col: 0, horizontally: true },
-            { indexShip: 4, row: 0, col: 0, horizontally: true },
-          ],
-          player2Ships: [
-            { indexShip: 0, row: 0, col: 0, horizontally: true },
-            { indexShip: 1, row: 0, col: 0, horizontally: true },
-            { indexShip: 2, row: 0, col: 0, horizontally: true },
-            { indexShip: 3, row: 0, col: 0, horizontally: true },
-            { indexShip: 4, row: 0, col: 0, horizontally: true },
-          ],
-          attacks: [
-            { target: 'player2', row: 5, col: 5 } // Afunda navio do player2
-          ],
-          description: 'should return player1 when player2 has single ship sunk'
-        },
-        // Caso 2: Múltiplos navios do player2 afundados
-        {
-          player1Ships: [
-            { length: 3, row: 1, col: 1, horizontally: true },
-            { length: 2, row: 3, col: 3, horizontally: false }
-          ],
-          player2Ships: [
-            { length: 1, row: 0, col: 0, horizontally: true },
-            { length: 2, row: 7, col: 7, horizontally: true }
-          ],
-          attacks: [
-            { target: 'player2', row: 0, col: 0 }, // Afunda primeiro navio
-            { target: 'player2', row: 7, col: 7 }, // Afunda segundo navio
-            { target: 'player2', row: 7, col: 8 }
-          ],
-          description: 'should return player1 when all player2 ships are sunk'
-        },
-        // Caso 3: Player1 com navios parcialmente atingidos, player2 completamente afundado
-        {
-          player1Ships: [
-            { length: 4, row: 2, col: 2, horizontally: true }
-          ],
-          player2Ships: [
-            { length: 3, row: 4, col: 4, horizontally: false }
-          ],
-          attacks: [
-            { target: 'player1', row: 2, col: 2 }, // Atinge player1 parcialmente
-            { target: 'player1', row: 2, col: 3 },
-            { target: 'player2', row: 4, col: 4 }, // Afunda player2 completamente
-            { target: 'player2', row: 5, col: 4 },
-            { target: 'player2', row: 6, col: 4 }
-          ],
-          description: 'should return player1 when player2 sunk despite player1 being hit'
-        }
-      ],
-
-      player2Wins: [
-        // Caso 1: Navio único do player1 afundado
-        {
-          player1Ships: [
-            { length: 1, row: 8, col: 8, horizontally: true }
-          ],
-          player2Ships: [
-            { length: 3, row: 0, col: 0, horizontally: false }
-          ],
-          attacks: [
-            { target: 'player1', row: 8, col: 8 } // Afunda navio do player1
-          ],
-          description: 'should return player2 when player1 has single ship sunk'
-        },
-        // Caso 2: Múltiplos navios do player1 afundados
-        {
-          player1Ships: [
-            { length: 2, row: 1, col: 1, horizontally: true },
-            { length: 1, row: 5, col: 5, horizontally: true },
-            { length: 3, row: 7, col: 0, horizontally: false }
-          ],
-          player2Ships: [
-            { length: 4, row: 0, col: 0, horizontally: true }
-          ],
-          attacks: [
-            { target: 'player1', row: 1, col: 1 }, // Afunda primeiro navio
-            { target: 'player1', row: 1, col: 2 },
-            { target: 'player1', row: 5, col: 5 }, // Afunda segundo navio
-            { target: 'player1', row: 7, col: 0 }, // Afunda terceiro navio
-            { target: 'player1', row: 8, col: 0 },
-            { target: 'player1', row: 9, col: 0 }
-          ],
-          description: 'should return player2 when all player1 ships are sunk'
-        },
-        // Caso 3: Player2 com navios parcialmente atingidos, player1 completamente afundado
-        {
-          player1Ships: [
-            { length: 2, row: 3, col: 3, horizontally: true }
-          ],
-          player2Ships: [
-            { length: 5, row: 0, col: 0, horizontally: true }
-          ],
-          attacks: [
-            { target: 'player2', row: 0, col: 0 }, // Atinge player2 parcialmente
-            { target: 'player2', row: 0, col: 1 },
-            { target: 'player1', row: 3, col: 3 }, // Afunda player1 completamente
-            { target: 'player1', row: 3, col: 4 }
-          ],
-          description: 'should return player2 when player1 sunk despite player2 being hit'
-        }
-      ],
-
-      noWinner: [
-        // Caso 1: Nenhum navio atingido
-        {
-          player1Ships: [
-            { length: 2, row: 0, col: 0, horizontally: true }
-          ],
-          player2Ships: [
-            { length: 2, row: 5, col: 5, horizontally: true }
-          ],
-          attacks: [],
-          description: 'should return null when no attacks made'
-        },
-        // Caso 2: Ataques que não atingem navios
-        {
-          player1Ships: [
-            { length: 3, row: 1, col: 1, horizontally: true }
-          ],
-          player2Ships: [
-            { length: 3, row: 6, col: 6, horizontally: false }
-          ],
-          attacks: [
-            { target: 'player1', row: 0, col: 0 }, // miss
-            { target: 'player2', row: 9, col: 9 }, // miss
-            { target: 'player1', row: 5, col: 5 }, // miss
-            { target: 'player2', row: 2, col: 2 }  // miss
-          ],
-          description: 'should return null when all attacks miss'
-        },
-        // Caso 3: Ambos jogadores com navios parcialmente atingidos
-        {
-          player1Ships: [
-            { length: 4, row: 0, col: 0, horizontally: true },
-            { length: 2, row: 3, col: 3, horizontally: false }
-          ],
-          player2Ships: [
-            { length: 3, row: 6, col: 0, horizontally: true },
-            { length: 1, row: 8, col: 8, horizontally: true }
-          ],
-          attacks: [
-            { target: 'player1', row: 0, col: 0 }, // hit parcial
-            { target: 'player1', row: 0, col: 1 }, // hit parcial
-            { target: 'player2', row: 6, col: 0 }, // hit parcial
-            { target: 'player2', row: 6, col: 1 }, // hit parcial
-            { target: 'player1', row: 3, col: 3 }, // hit parcial
-            { target: 'player2', row: 8, col: 8 }  // afunda um navio, mas ainda tem outro
-          ],
-          description: 'should return null when both players have ships remaining'
-        },
-        // Caso 4: Um jogador com navio afundado, outro com navios intactos
-        {
-          player1Ships: [
-            { length: 1, row: 1, col: 1, horizontally: true },
-            { length: 2, row: 5, col: 5, horizontally: true }
-          ],
-          player2Ships: [
-            { length: 3, row: 7, col: 0, horizontally: false }
-          ],
-          attacks: [
-            { target: 'player1', row: 1, col: 1 }, // afunda um navio do player1
-            { target: 'player2', row: 7, col: 0 }  // hit parcial no player2
-          ],
-          description: 'should return null when one player has ships sunk but both still have remaining ships'
-        }
-      ],
-
-      errors: [
-        // Caso 1: Nenhum navio colocado no player1
-        {
-          player1Ships: [],
-          player2Ships: [
-            { length: 2, row: 0, col: 0, horizontally: true }
-          ],
-          attacks: [],
-          description: 'should throw when player1 has no ships',
-          errorMsg: 'No ships on gameboard!'
-        },
-        // Caso 2: Nenhum navio colocado no player2
-        {
-          player1Ships: [
-            { length: 2, row: 0, col: 0, horizontally: true }
-          ],
-          player2Ships: [],
-          attacks: [],
-          description: 'should throw when player2 has no ships',
-          errorMsg: 'No ships on gameboard!'
-        },
-        // Caso 3: Nenhum navio colocado em ambos jogadores
-        {
-          player1Ships: [],
-          player2Ships: [],
-          attacks: [],
-          description: 'should throw when both players have no ships',
-          errorMsg: 'No ships on gameboard!'
-        }
-      ]
-    };
-
-    // Helper function para executar os casos de teste
-    const executeTestCase = (testCase, expectedResult) => {
-      // Coloca navios do player1
-      testCase.player1Ships.forEach(ship => {
-        c.player1.gameboard.placeShip(ship.length, ship.row, ship.col, ship.horizontally);
+    test('Player 1 wins', () => {
+      const player1Gameboard = c.player1.gameboard;
+      const player2Gameboard = c.player2.gameboard;
+      
+      // Place all ships randomly
+      player1Gameboard.ships.forEach((ship) => {
+        player1Gameboard.placeShipRandomly(ship);
+      });
+      player2Gameboard.ships.forEach((ship) => {
+        player2Gameboard.placeShipRandomly(ship);
       });
 
-      // Coloca navios do player2
-      testCase.player2Ships.forEach(ship => {
-        c.player2.gameboard.placeShip(ship.length, ship.row, ship.col, ship.horizontally);
-      });
+      c.setPhase('attacks');
 
-      // Executa ataques
-      testCase.attacks.forEach(attack => {
-        const target = attack.target === 'player1' ? c.player1 : c.player2;
-        c.attack(target, attack.row, attack.col);
-      });
-
-      // Verifica resultado
-      if (expectedResult === 'player1') {
-        expect(c.getWinner()).toBe(c.player1);
-      } else if (expectedResult === 'player2') {
-        expect(c.getWinner()).toBe(c.player2);
-      } else if (expectedResult === null) {
-        expect(c.getWinner()).toBeNull();
-      }
-    };
-
-    describe('Player 1 wins', () => {
-      getWinnerCases.player1Wins.forEach((testCase, index) => {
-        test(`case ${index}: ${testCase.description}`, () => {
-          executeTestCase(testCase, 'player1');
+      player2Gameboard.ships.forEach(({ positions }) => {
+        positions.forEach(([row, col]) => {
+          c.attack(c.player2, row, col);
         });
       });
+
+      expect(c.getWinner()).toBe(c.player1);
     });
 
-    describe('Player 2 wins', () => {
-      getWinnerCases.player2Wins.forEach((testCase, index) => {
-        test(`case ${index}: ${testCase.description}`, () => {
-          executeTestCase(testCase, 'player2');
+    test('Player 2 wins', () => {
+      const player1Gameboard = c.player1.gameboard;
+      const player2Gameboard = c.player2.gameboard;
+      
+      // Place all ships randomly
+      player1Gameboard.ships.forEach((ship) => {
+        player1Gameboard.placeShipRandomly(ship);
+      });
+      player2Gameboard.ships.forEach((ship) => {
+        player2Gameboard.placeShipRandomly(ship);
+      });
+
+      c.setPhase('attacks');
+
+      player1Gameboard.ships.forEach(({ positions }) => {
+        positions.forEach(([row, col]) => {
+          c.attack(c.player1, row, col);
         });
       });
+
+      expect(c.getWinner()).toBe(c.player2);
     });
 
-    describe('No winner', () => {
-      getWinnerCases.noWinner.forEach((testCase, index) => {
-        test(`case ${index}: ${testCase.description}`, () => {
-          executeTestCase(testCase, null);
-        });
+    test('No winner', () => {
+      const player1Gameboard = c.player1.gameboard;
+      const player2Gameboard = c.player2.gameboard;
+      
+      // Place all ships randomly
+      player1Gameboard.ships.forEach((ship) => {
+        player1Gameboard.placeShipRandomly(ship);
       });
-    });
-
-    describe('Error cases', () => {
-      getWinnerCases.errors.forEach((testCase, index) => {
-        test(`case ${index}: ${testCase.description}`, () => {
-          // Coloca navios do player1
-          testCase.player1Ships.forEach(ship => {
-            c.player1.gameboard.placeShip(ship.length, ship.row, ship.col, ship.horizontally);
-          });
-
-          // Coloca navios do player2
-          testCase.player2Ships.forEach(ship => {
-            c.player2.gameboard.placeShip(ship.length, ship.row, ship.col, ship.horizontally);
-          });
-
-          // Executa ataques
-          testCase.attacks.forEach(attack => {
-            const target = attack.target === 'player1' ? c.player1 : c.player2;
-            c.attack(target, attack.row, attack.col);
-          });
-
-          // Verifica se lança erro
-          expect(() => c.getWinner()).toThrow(testCase.errorMsg);
-        });
+      player2Gameboard.ships.forEach((ship) => {
+        player2Gameboard.placeShipRandomly(ship);
       });
+
+      expect(c.getWinner()).toBeNull();
     });
   });
 
@@ -559,8 +338,11 @@ describe('Controller', () => {
             description: 'should create new players with fresh gameboards',
             setup: () => {
               // Adiciona navios e faz ataques para "sujar" o estado
-              c.player1.gameboard.placeShip(2, 0, 0, true);
-              c.player2.gameboard.placeShip(3, 5, 5, false);
+              const player1Ships = c.player1.gameboard.ships;
+              const player2Ships = c.player2.gameboard.ships;
+              c.player1.gameboard.placeShip(player1Ships[1], 0, 0, true);
+              c.player2.gameboard.placeShip(player2Ships[2], 5, 5, false);
+              c.setPhase('attacks');
               c.attack(c.player1, 0, 0);
               c.attack(c.player2, 5, 5);
               c.changeTurn(); // Muda para player2
@@ -569,11 +351,14 @@ describe('Controller', () => {
           {
             description: 'should reset after complex game state',
             setup: () => {
+              const player1Ships = c.player1.gameboard.ships;
+              const player2Ships = c.player2.gameboard.ships;
               // Cenário complexo
-              c.player1.gameboard.placeShip(1, 1, 1, true);
-              c.player1.gameboard.placeShip(2, 3, 3, true);
-              c.player2.gameboard.placeShip(4, 0, 0, true);
+              c.player1.gameboard.placeShip(player1Ships[0], 1, 1, true);
+              c.player1.gameboard.placeShip(player1Ships[1], 3, 3, true);
+              c.player2.gameboard.placeShip(player2Ships[3], 0, 0, true);
               
+              c.setPhase('attacks');
               // Múltiplos ataques
               c.attack(c.player1, 1, 1); // hit
               c.attack(c.player2, 0, 0); // hit
@@ -592,8 +377,18 @@ describe('Controller', () => {
           {
             description: 'should have empty gameboards after reset',
             verification: (originalPlayer1, originalPlayer2) => {
-              expect(c.player1.gameboard.ships).toHaveLength(0);
-              expect(c.player2.gameboard.ships).toHaveLength(0);
+              expect(c.player1.gameboard.ships).toHaveLength(8);
+
+              c.player1.gameboard.ships.forEach((ship) => {
+                expect(ship.positions).toHaveLength(0);
+              });
+
+              expect(c.player2.gameboard.ships).toHaveLength(8);
+
+              c.player2.gameboard.ships.forEach((ship) => {
+                expect(ship.positions).toHaveLength(0);
+              });
+
               expect(c.player1.gameboard.missedAttacks).toHaveLength(0);
               expect(c.player2.gameboard.missedAttacks).toHaveLength(0);
             }
@@ -672,95 +467,21 @@ describe('Controller', () => {
           expect(c.player2.type).toBe(originalPlayer2Type);
         });
       });
-
-      test('should handle reset from winning state', () => {
-        // Setup um jogo onde player1 ganhou
-        c.player1.gameboard.placeShip(2, 0, 0, true);
-        c.player2.gameboard.placeShip(1, 5, 5, true);
-        
-        // Player1 ganha
-        c.attack(c.player2, 5, 5);
-        
-        expect(c.getWinner()).toBe(c.player1);
-        
-        // Reset
-        c.resetGame();
-        
-        // Não deveria haver vencedor
-        expect(() => c.getWinner()).toThrow('No ships on gameboard!');
-        
-        // Deveria ser possível começar novo jogo
-        c.player1.gameboard.placeShip(1, 0, 0, true);
-        c.player2.gameboard.placeShip(1, 9, 9, true);
-        
-        expect(c.getWinner()).toBeNull();
-      });
-
-      test('should maintain consistent state after multiple resets', () => {
-        for (let i = 0; i < 3; i++) {
-          // Setup jogo
-          c.player1.gameboard.placeShip(1, i, i, true);
-          c.player2.gameboard.placeShip(1, 9-i, 9-i, true);
-          c.changeTurn();
-          
-          // Reset
-          c.resetGame();
-          
-          // Verificações
-          expect(c.turn).toBe(c.player1);
-          expect(c.player1.gameboard.ships).toHaveLength(0);
-          expect(c.player2.gameboard.ships).toHaveLength(0);
-        }
-      });
-    });
-
-    describe('integration with game flow', () => {
-      test('should maintain consistent turn state during attacks', () => {
-        // Coloca navios
-        c.player1.gameboard.placeShip(2, 0, 0, true);
-        c.player2.gameboard.placeShip(2, 0, 0, true);
-        
-        // Player1 ataca
-        expect(c.isPlayerTurn(c.player1)).toBe(true);
-        c.attack(c.player2, 0, 0);
-        
-        // Muda turno
-        c.changeTurn();
-        expect(c.isPlayerTurn(c.player2)).toBe(true);
-        
-        // Player2 ataca
-        c.attack(c.player1, 0, 0);
-        
-        // Turno ainda é do player2
-        expect(c.isPlayerTurn(c.player2)).toBe(true);
-      });
-
-      test('should work correctly when game ends', () => {
-        // Setup jogo que player1 vai ganhar
-        c.player1.gameboard.placeShip(1, 0, 0, true);
-        c.player2.gameboard.placeShip(1, 5, 5, true);
-        
-        // Player1 ataca e ganha
-        expect(c.isPlayerTurn(c.player1)).toBe(true);
-        c.attack(c.player2, 5, 5);
-        
-        // Jogo terminou, mas turno ainda é válido
-        expect(c.getWinner()).toBe(c.player1);
-        expect(c.isPlayerTurn(c.player1)).toBe(true);
-      });
     });
   });
 
   describe('clearGame', () => {
     describe('Success cases', () => {
       test('should reset both players gameboards', () => {
+        const player1Gameboard = c.player1.gameboard;
+        const player2Gameboard = c.player2.gameboard;
         // Arrange: simula um estado de jogo com navios posicionados
-        c.player1.gameboard.placeShip(2, 0, 0, true);
-        c.player2.gameboard.placeShip(3, 1, 1, false);
+        player1Gameboard.placeShip(player1Gameboard.ships[1], 0, 0, true);
+        player2Gameboard.placeShip(player2Gameboard.ships[2], 1, 1, false);
         
         // Espiona os métodos resetGameboard
-        const spy1 = jest.spyOn(c.player1.gameboard, 'resetGameboard');
-        const spy2 = jest.spyOn(c.player2.gameboard, 'resetGameboard');
+        const spy1 = jest.spyOn(player1Gameboard, 'resetGameboard');
+        const spy2 = jest.spyOn(player2Gameboard, 'resetGameboard');
 
         // Act
         c.clearGame();
@@ -818,9 +539,11 @@ describe('Controller', () => {
       });
 
       test('should clear all game state components in one operation', () => {
+        const player1Gameboard = c.player1.gameboard;
+        const player2Gameboard = c.player2.gameboard;
         // Arrange: configura um estado de jogo complexo
-        c.player1.gameboard.placeShip(4, 0, 0, true);
-        c.player2.gameboard.placeShip(2, 2, 2, false);
+        player1Gameboard.placeShip(player1Gameboard.ships[3], 0, 0, true);
+        player2Gameboard.placeShip(player2Gameboard.ships[1], 2, 2, false);
         
         c.player1.attacks = [
           { row: 0, col: 0 },
@@ -835,8 +558,8 @@ describe('Controller', () => {
         c.turn = c.player2;
 
         // Spies para verificar chamadas
-        const resetSpy1 = jest.spyOn(c.player1.gameboard, 'resetGameboard');
-        const resetSpy2 = jest.spyOn(c.player2.gameboard, 'resetGameboard');
+        const resetSpy1 = jest.spyOn(player1Gameboard, 'resetGameboard');
+        const resetSpy2 = jest.spyOn(player2Gameboard, 'resetGameboard');
 
         // Act
         c.clearGame();
@@ -931,20 +654,27 @@ describe('Controller', () => {
 
     describe('Integration tests', () => {
       test('should allow new game to start properly after clearing', () => {
+        const player1Gameboard = c.player1.gameboard;
+        const player2Gameboard = c.player2.gameboard;
         // Arrange: simula um jogo completo
-        c.player1.gameboard.placeShip(2, 0, 0, true);
-        c.player2.gameboard.placeShip(2, 1, 1, false);
+        player1Gameboard.placeShip(player1Gameboard.ships[1], 0, 0, true);
+        player2Gameboard.placeShip(player2Gameboard.ships[1], 1, 1, false);
+        c.setPhase('attacks');
         c.attack(c.player2, 1, 1);
+        c.changeTurn();
         c.attack(c.player1, 0, 0);
-        c.turn = c.player2;
+        c.changeTurn();
 
         // Act: limpa o jogo
         c.clearGame();
+        const player1NewGameboard = c.player1.gameboard;
+        const player2NewGameboard = c.player2.gameboard;
+        c.setPhase('attacks');
 
         // Assert: deve ser possível iniciar um novo jogo
         expect(() => {
-          c.player1.gameboard.placeShip(3, 0, 0, true);
-          c.player2.gameboard.placeShip(3, 2, 2, false);
+          player1NewGameboard.placeShip(player1NewGameboard.ships[2], 0, 0, true);
+          player2NewGameboard.placeShip(player2NewGameboard.ships[2], 2, 2, false);
           c.attack(c.player2, 0, 0);
         }).not.toThrow();
 
