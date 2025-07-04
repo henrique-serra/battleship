@@ -205,9 +205,42 @@ body {
     background: rgba(255,255,255,0.1);
     padding: 8px 12px;
     border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.ship-type:hover {
+    color: #212121;
+    background-color: #f0f0f0;
+    border-color: #999;
+    cursor: pointer;
+}
+
+.ship-type.selected {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #45a049;
+}
+
+/* Modal de orientação */
+.orientation-modal {
+    position: absolute;
+    background: white;
+    border: 2px solid #333;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: none;
+}
+
+.orientation-modal button {
+    margin: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
 }
 
 .ship-name {
+    flex: 1;
     font-size: 0.9rem;
 }
 
@@ -271,6 +304,87 @@ body {
     box-shadow: 0 6px 12px rgba(0,0,0,0.4);
 }
 
+.btn-random {
+    font-size: 18px;
+    background-color: transparent;
+    border: none;
+    padding: 2px 4px;
+    border-radius: 3px;
+    margin-right: 8px;
+    transition: background-color 0.2s;
+}
+
+.btn-random:hover {
+    background-color: #cddeec;
+}
+
+.fleet-controls-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.btn-clear-all {
+    background: linear-gradient(45deg, #f44336, #d32f2f);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    justify-content: center;
+}
+
+.btn-clear-all:hover {
+    background: linear-gradient(45deg, #e53935, #c62828);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+/* Botão para posicionar todos os navios aleatoriamente */
+.btn-random-all {
+    background: linear-gradient(45deg, #9c27b0, #7b1fa2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    justify-content: center;
+}
+
+.btn-random-all:hover {
+    background: linear-gradient(45deg, #8e24aa, #6a1b9a);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+/* Efeito de clique para ambos os botões */
+.btn-clear-all:active,
+.btn-random-all:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
 @media (max-width: 768px) {
     .game-boards {
         grid-template-columns: 1fr;
@@ -289,6 +403,18 @@ body {
     .controls {
         flex-direction: column;
         align-items: center;
+    }
+
+    .fleet-controls-section {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .btn-clear-all,
+    .btn-random-all {
+        padding: 12px 16px;
+        font-size: 0.8rem;
+        width: 100%;
     }
 }
 

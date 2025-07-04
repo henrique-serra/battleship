@@ -6,7 +6,10 @@ export default class Gameboard {
     this.missedAttacks = [];
     this.ships = [
       new Ship(1),
+      new Ship(1),
       new Ship(2),
+      new Ship(2),
+      new Ship(3),
       new Ship(3),
       new Ship(4),
       new Ship(5),
@@ -36,7 +39,7 @@ export default class Gameboard {
   }
 
   placeShip(ship, row, col, horizontally = true) {
-    const { length } = ship;
+    const { length } = ship.shipInfo;
     if(arguments.length < 3 || length === undefined || row === undefined || col === undefined) {
       throw new Error('Missing value(s)!');
     };
@@ -65,19 +68,19 @@ export default class Gameboard {
 
   placeShipRandomly(ship) {
     const horizontally = Math.random() < 0.5;
-    const maxRow = horizontally ? 10 : (10 - ship.length);
-    const maxCol = horizontally ? (10 - ship.length) : 10;
+    const maxRow = horizontally ? 10 : (10 - ship.shipInfo.length);
+    const maxCol = horizontally ? (10 - ship.shipInfo.length) : 10;
 
     const row = Math.floor(Math.random() * (maxRow));
     const col = Math.floor(Math.random() * (maxCol));
 
     if(horizontally) {
-      for(let i = col; i < (col + ship.length); i++) {
+      for(let i = col; i < (col + ship.shipInfo.length); i++) {
         const shipOnBoard = this.defenseBoard[row][i].ship;
         if(shipOnBoard) return this.placeShipRandomly(ship);
       }
     } else {
-      for(let i = row; i < (row + ship.length); i++) {
+      for(let i = row; i < (row + ship.shipInfo.length); i++) {
         const shipOnBoard = this.defenseBoard[i][col].ship;
         if(shipOnBoard) return this.placeShipRandomly(ship);
       }

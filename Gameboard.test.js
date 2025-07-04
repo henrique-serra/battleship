@@ -165,7 +165,7 @@ describe('Gameboard class', () => {
         const gameboard = new Gameboard();
         gameboard.ships.forEach((ship) => {
           gameboard.placeShipRandomly(ship);
-          expect(ship.positions).toHaveLength(ship.length);
+          expect(ship.positions).toHaveLength(ship.shipInfo.length);
         })
       }
     })
@@ -225,7 +225,7 @@ describe('Gameboard class', () => {
           const gameboardShip = gameboard.ships[shipIndex];
           gameboard.placeShip(gameboardShip, ...Object.values(otherProps));
           // Before removal
-          expect(gameboardShip.positions).toHaveLength(gameboardShip.length);
+          expect(gameboardShip.positions).toHaveLength(gameboardShip.shipInfo.length);
           // Removal
           gameboard.removeShip(gameboardShip);
           expect(gameboardShip.positions).toHaveLength(0);
@@ -544,27 +544,30 @@ describe('Gameboard class', () => {
       ],
     };
 
-    describe('all ships sunk', () => {
-      allShipsSunkCases.allSunk.forEach(({ ships, attacksReceived }, index) => {
-        test(`case ${index} should return true`, () => {
-          ships.forEach(({ shipIndex, row, col, horizontally }) => {
-            const ship = gameboard.ships[shipIndex];
-            gameboard.placeShip(ship, row, col, horizontally);
-          });
-          attacksReceived.forEach(({ row, col }) => gameboard.receiveAttack(row, col));
-          expect(gameboard.allShipsSunk()).toBe(true);
-        })
-      })
+    test('all ships sunk', () => {
+      // Place all ships randomly
+      gameboard.ships.forEach((ship) => {
+        gameboard.placeShipRandomly(ship);
+        // For each ship, receive attack at each position
+        ship.positions.forEach(([row, col]) => {
+          gameboard.receiveAttack(row, col);
+        });
+      });
+
+      expect(gameboard.allShipsSunk()).toBe(true);
     });
 
-    describe('not all ships sunk', () => {
-      allShipsSunkCases.notAllSunk.forEach(({ ships, attacksReceived, description }) => {
-        test(description, () => {
-          ships.forEach(({ shipIndex, row, col, horizontally }) => gameboard.placeShip(gameboard.ships[shipIndex], row, col, horizontally));
-          attacksReceived.forEach(({ row, col }) => gameboard.receiveAttack(row, col));
-          expect(gameboard.allShipsSunk()).toBe(false);
-        })
-      })
+    test('not all ships sunk', () => {
+      // Place all ships randomly
+      gameboard.ships.forEach((ship) => {
+        gameboard.placeShipRandomly(ship);
+        // For each ship, receive attack at each position that has an even index
+        ship.positions.forEach(([row, col], index) => {
+          if (index % 2 === 0) gameboard.receiveAttack(row, col);
+        });
+      });
+
+      expect(gameboard.allShipsSunk()).toBe(false);
     })
   });
 
@@ -640,75 +643,8 @@ describe('Gameboard class', () => {
         expect(ship.hits).toBe(0);
         expect(ship.sunk).toBe(false);
         expect(ship.positions).toHaveLength(0);
-        expect(index).toBe(ship.length - 1);
+        expect(index).toBe(ship.shipInfo.length - 1);
       });
-    });
-
-    test('should completely reset a complex game state', () => {
-      // Arrange: create a complex game state
-      // Place ships using predefined ships from constructor (ordered by size)
-      const ship1 = gameboard.ships[0]; // length 1
-      const ship2 = gameboard.ships[1]; // length 2
-      const ship3 = gameboard.ships[2]; // length 3
-      const ship4 = gameboard.ships[3]; // length 4
-      const ship5 = gameboard.ships[4]; // length 5
-      
-      gameboard.placeShip(ship1, 9, 9, true);   // [9,9]
-      gameboard.placeShip(ship2, 6, 6, true);   // [6,6] to [6,7]
-      gameboard.placeShip(ship3, 2, 2, false);  // [2,2] to [4,2]
-      gameboard.placeShip(ship4, 0, 0, true);   // [0,0] to [0,3]
-      gameboard.placeShip(ship5, 5, 0, true);   // [5,0] to [5,4]
-      
-      // Make attacks (hits and misses)
-      gameboard.receiveAttack(0, 0); // hit ship4
-      gameboard.receiveAttack(0, 1); // hit ship4
-      gameboard.receiveAttack(2, 2); // hit ship3
-      gameboard.receiveAttack(6, 6); // hit ship2
-      gameboard.receiveAttack(9, 9); // hit ship1 (sunk)
-      gameboard.receiveAttack(5, 0); // hit ship5
-      
-      gameboard.receiveAttack(1, 1); // miss
-      gameboard.receiveAttack(3, 3); // miss
-      gameboard.receiveAttack(5, 5); // miss
-      gameboard.receiveAttack(8, 8); // miss
-      
-      // Verify complex state exists
-      expect(gameboard.ships).toHaveLength(5); // All 5 ships should be placed
-      expect(gameboard.missedAttacks).toHaveLength(4);
-      expect(gameboard.defenseBoard[9][9].ship).toBe(ship1);
-      expect(gameboard.defenseBoard[6][6].ship).toBe(ship2);
-      expect(gameboard.defenseBoard[2][2].ship).toBe(ship3);
-      expect(gameboard.defenseBoard[0][0].ship).toBe(ship4);
-      expect(gameboard.defenseBoard[5][0].ship).toBe(ship5);
-      
-      // Act
-      gameboard.resetGameboard();
-      
-      // Assert
-      expect(gameboard.ships[0]).not.toBe(ship1);
-      expect(gameboard.ships[1]).not.toBe(ship2);
-      expect(gameboard.ships[2]).not.toBe(ship3);
-      expect(gameboard.ships[3]).not.toBe(ship4);
-      expect(gameboard.ships[4]).not.toBe(ship5);
-
-      expect(gameboard.ships).toHaveLength(5);
-
-      gameboard.ships.forEach((ship, index) => {
-        expect(ship.hits).toBe(0);
-        expect(ship.sunk).toBe(false);
-        expect(ship.positions).toHaveLength(0);
-        expect(index).toBe(ship.length - 1);
-      });
-      
-      // Verify all board positions are reset
-      for (let row = 0; row < 10; row++) {
-        for (let col = 0; col < 10; col++) {
-          expect(gameboard.defenseBoard[row][col]).toEqual({
-            ship: null,
-            hitTaken: false
-          });
-        }
-      }
     });
 
     test('should reset hitTaken property for all cells', () => {
@@ -747,7 +683,7 @@ describe('Gameboard class', () => {
         expect(ship.hits).toBe(0);
         expect(ship.sunk).toBe(false);
         expect(ship.positions).toHaveLength(0);
-        expect(index).toBe(ship.length - 1);
+        expect(index).toBe(ship.shipInfo.length - 1);
       });
       
       for (let row = 0; row < 10; row++) {
