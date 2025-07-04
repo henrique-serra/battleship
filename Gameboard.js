@@ -13,7 +13,18 @@ export default class Gameboard {
       new Ship(3),
       new Ship(4),
       new Ship(5),
-    ]
+    ];
+    this.shipsGroupedByName = this.groupShipsByName();
+  }
+
+  groupShipsByName() {
+    return this.ships.reduce((shipsGrouped, ship) => {
+      if (!shipsGrouped[ship.shipInfo.name]) {
+        shipsGrouped[ship.shipInfo.name] = [];
+      }
+      shipsGrouped[ship.shipInfo.name].push(ship);
+      return shipsGrouped;
+    }, {})
   }
 
   createGameBoard() {
