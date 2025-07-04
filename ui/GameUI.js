@@ -36,7 +36,6 @@ class GameUI {
     
     this.player1Ships = this.controller.player1.gameboard.ships;
     this.player2Ships = this.controller.player2.gameboard.ships;
-    
 
     this.setupHandlers();
   }
@@ -50,6 +49,16 @@ class GameUI {
     return player.gameboard.ships.find(({ shipInfo }) => shipInfo.name === shipType);
   }
 
+  getShipsToBePlaced(shipType, player) {
+    const shipsGroupedByName = player.gameboard.shipsGroupedByName;
+    console.log(shipsGroupedByName);
+    const shipsToBePlaced = Object.entries(shipsGroupedByName).filter(([shipName, ship]) => {
+      return shipName === shipType && ship.positions.length === 0;
+    })
+
+    return shipsToBePlaced;
+  }
+
   placeShipOnBoard(ship) {
     let playerNumber;
     if (this.controller.player1.gameboard.ships.includes(ship)) {
@@ -61,8 +70,8 @@ class GameUI {
     ship.positions.forEach(([row, col]) => {
       const cell = this[`player${playerNumber}BoardEl`].querySelector(`[data-row="${row}"][data-col="${col}"]`);
 
-      cell.classList.add('ship');
-    })
+      cell.classList.add('ship', ship.shipInfo.name);
+    });
   }
 
   removeShipOnBoard(ship) {
