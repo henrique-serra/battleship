@@ -1,12 +1,9 @@
-import Gameboard from "../Gameboard.js";
-
-const gameboard = new Gameboard();
-const shipsByName = gameboard.shipsGroupedByName;
-
 export default class BoardRenderer {
-  constructor(playerContainer, opponentContainer) {
-    this.playerContainer = playerContainer;
-    this.opponentContainer = opponentContainer;
+  constructor(player1Container, player2Container, player1GameBoard, player2GameBoard) {
+    this.player1Container = player1Container;
+    this.player2Container = player2Container;
+    this.player1GameBoard = player1GameBoard;
+    this.player2GameBoard = player2GameBoard;
   }
 
   createGameBoardsHTML() {
@@ -46,7 +43,7 @@ export default class BoardRenderer {
 
     const createShipTypeDivs = function createShipTypeDivs() {
       let shipTypeDivs = '';
-      Object.entries(shipsByName).forEach(([shipName, ships]) => {
+      Object.entries(this.player1GameBoard.shipsGroupedByName).forEach(([shipName, ships]) => {
         shipTypeDivs += `
         <div class="ship-type" data-ship-type="${shipName}">
           <span class="ship-name">🛳️ ${firstLetterCaps(shipName)} (${ships[0].shipInfo.length})</span>
