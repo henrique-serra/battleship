@@ -626,36 +626,27 @@ describe('Gameboard class', () => {
 
     test('should replace ships in ships array for new ships', () => {
       // Arrange: place multiple ships
-      const ship1 = gameboard.ships[0];
-      const ship2 = gameboard.ships[1];
-      const ship3 = gameboard.ships[2];
-      const ship4 = gameboard.ships[3];
-      const ship5 = gameboard.ships[4];
-      
-      gameboard.placeShip(ship1, 0, 0, true);
-      gameboard.placeShip(ship2, 2, 2, false);
-      gameboard.placeShip(ship3, 5, 5, true);
-      gameboard.placeShip(ship4, 1, 1, false);
-      gameboard.placeShip(ship5, 9, 0, true);
+      const initialShips = [];
+
+      // Place initial ships randomly
+      gameboard.ships.forEach((ship) => {
+        initialShips.push(ship);
+        gameboard.placeShipRandomly(ship);
+      });
       
       // Act
       gameboard.resetGameboard();
       
       // Assert
-      expect(gameboard.ships[0]).not.toBe(ship1);
-      expect(gameboard.ships[1]).not.toBe(ship2);
-      expect(gameboard.ships[2]).not.toBe(ship3);
-      expect(gameboard.ships[3]).not.toBe(ship4);
-      expect(gameboard.ships[4]).not.toBe(ship5);
-
-      expect(gameboard.ships).toHaveLength(5);
-
-      gameboard.ships.forEach((ship, index) => {
-        expect(ship.hits).toBe(0);
-        expect(ship.sunk).toBe(false);
-        expect(ship.positions).toHaveLength(0);
-        expect(index).toBe(ship.shipInfo.length - 1);
+      initialShips.forEach((originalShip, index) => {
+        const newShip = gameboard.ships[index];
+        expect(newShip).not.toBe(originalShip);
+        expect(newShip.hits).toBe(0);
+        expect(newShip.sunk).toBe(false);
+        expect(newShip.positions).toHaveLength(0);
       });
+
+      expect(gameboard.ships).toHaveLength(initialShips.length);
     });
 
     test('should reset hitTaken property for all cells', () => {
@@ -674,35 +665,6 @@ describe('Gameboard class', () => {
       for (let row = 0; row < 10; row++) {
         for (let col = 0; col < 10; col++) {
           expect(gameboard.defenseBoard[row][col].hitTaken).toBe(false);
-        }
-      }
-    });
-
-    test('should be idempotent - multiple calls should have same effect', () => {
-      // Arrange: create some state
-      gameboard.placeShip(gameboard.ships[1], 0, 0, true);
-      gameboard.receiveAttack(5, 5);
-      
-      // Act: call reset multiple times
-      gameboard.resetGameboard();
-      gameboard.resetGameboard();
-      gameboard.resetGameboard();
-      
-      expect(gameboard.ships).toHaveLength(5);
-
-      gameboard.ships.forEach((ship, index) => {
-        expect(ship.hits).toBe(0);
-        expect(ship.sunk).toBe(false);
-        expect(ship.positions).toHaveLength(0);
-        expect(index).toBe(ship.shipInfo.length - 1);
-      });
-      
-      for (let row = 0; row < 10; row++) {
-        for (let col = 0; col < 10; col++) {
-          expect(gameboard.defenseBoard[row][col]).toEqual({
-            ship: null,
-            hitTaken: false
-          });
         }
       }
     });

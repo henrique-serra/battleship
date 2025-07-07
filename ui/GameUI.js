@@ -100,7 +100,7 @@ class GameUI {
     const gameBoardsEl = document.querySelector('.game-boards');
     if(gameBoardsEl) gameBoardsEl.remove();
 
-    const newGameBoardsDiv = this.createElement(this.boardRenderer.createGameBoardsHTML());
+    const newGameBoardsDiv = this.boardRenderer.createDivGameBoards();
     this.gameInfoDiv.after(newGameBoardsDiv);
   }
 
