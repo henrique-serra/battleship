@@ -4,8 +4,9 @@ import BoardRenderer from "./BoardRenderer.js";
 class GameUI {
   constructor() {
     this.controller = new Controller();
-    this.boardRenderer = new BoardRenderer(this.player1BoardEl, this.player2BoardEl);
-    this.gameBoardsDiv = this.createElement(this.boardRenderer.createGameBoardsHTML());
+    this.boardRenderer = new BoardRenderer(this.controller.player1.gameboard, this.controller.player2.gameboard);
+    // this.gameBoardsDiv = this.createElement(this.boardRenderer.createGameBoardsHTML());
+    this.gameBoardsDiv = this.boardRenderer.createDivGameBoards();
     // Add to DOM
     this.gameInfoDiv = document.querySelector('.game-info');
     this.gameInfoDiv.after(this.gameBoardsDiv);
@@ -36,7 +37,6 @@ class GameUI {
     
     this.player1Ships = this.controller.player1.gameboard.ships;
     this.player2Ships = this.controller.player2.gameboard.ships;
-    
 
     this.setupHandlers();
   }
@@ -50,6 +50,16 @@ class GameUI {
     return player.gameboard.ships.find(({ shipInfo }) => shipInfo.name === shipType);
   }
 
+  // getShipsToBePlaced(shipType, player) {
+  //   const shipsGroupedByName = player.gameboard.shipsGroupedByName;
+  //   console.log(shipsGroupedByName);
+  //   const shipsToBePlaced = Object.entries(shipsGroupedByName).filter(([shipName, ship]) => {
+  //     return shipName === shipType && ship.positions.length === 0;
+  //   })
+
+  //   return shipsToBePlaced;
+  // }
+
   placeShipOnBoard(ship) {
     let playerNumber;
     if (this.controller.player1.gameboard.ships.includes(ship)) {
@@ -61,8 +71,8 @@ class GameUI {
     ship.positions.forEach(([row, col]) => {
       const cell = this[`player${playerNumber}BoardEl`].querySelector(`[data-row="${row}"][data-col="${col}"]`);
 
-      cell.classList.add('ship');
-    })
+      cell.classList.add('ship', ship.shipInfo.name);
+    });
   }
 
   removeShipOnBoard(ship) {

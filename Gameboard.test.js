@@ -13,6 +13,17 @@ describe('Gameboard class', () => {
     expect(Array.isArray(gameboard.ships)).toBe(true);
   });
 
+  describe('groupShipsByName', () => {
+    test('should return an object grouped by name of ships', () => {
+      const shipsByName = gameboard.groupShipsByName();
+      expect(shipsByName.patrol).toHaveLength(2);
+      expect(shipsByName.submarine).toHaveLength(2);
+      expect(shipsByName.destroyer).toHaveLength(2);
+      expect(shipsByName.battleship).toHaveLength(1);
+      expect(shipsByName.carrier).toHaveLength(1);
+    })
+  })
+
   describe('placeShip should place ships correctly', () => {
     const placeShipCases = {
       success: {
