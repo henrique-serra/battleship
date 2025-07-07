@@ -144,7 +144,10 @@ export default class Gameboard {
     this.missedAttacks = [];
     this.ships = [
       new Ship(1),
+      new Ship(1),
       new Ship(2),
+      new Ship(2),
+      new Ship(3),
       new Ship(3),
       new Ship(4),
       new Ship(5),
