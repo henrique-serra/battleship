@@ -4,8 +4,9 @@ import BoardRenderer from "./BoardRenderer.js";
 class GameUI {
   constructor() {
     this.controller = new Controller();
-    this.boardRenderer = new BoardRenderer(this.player1BoardEl, this.player2BoardEl, this.controller.player1.gameboard, this.controller.player2.gameboard);
-    this.gameBoardsDiv = this.createElement(this.boardRenderer.createGameBoardsHTML());
+    this.boardRenderer = new BoardRenderer(this.controller.player1.gameboard, this.controller.player2.gameboard);
+    // this.gameBoardsDiv = this.createElement(this.boardRenderer.createGameBoardsHTML());
+    this.gameBoardsDiv = this.boardRenderer.createDivGameBoards();
     // Add to DOM
     this.gameInfoDiv = document.querySelector('.game-info');
     this.gameInfoDiv.after(this.gameBoardsDiv);
