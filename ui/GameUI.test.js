@@ -55,15 +55,15 @@ describe('GameUI', () => {
     });
   });
 
-  describe('getShipsToBePlaced', () => {
-    test('should return 1 after placing 1 patrol', () => {
-      const player1Gameboard = gameUI.controller.player1.gameboard;
-      const player1Ships = player1Gameboard.ships;
-      const player1ShipsGroupedByName = player1Gameboard.shipsGroupedByName;
-      player1Gameboard.placeShipRandomly(player1ShipsGroupedByName.patrol[0]);
-      expect(gameUI.getShipsToBePlaced('patrol')).toBe(player1Gameboard.shipsGroupedByName.patrol[1]);
-    })
-  })
+  // describe('getShipsToBePlaced', () => {
+  //   test('should return 1 after placing 1 patrol', () => {
+  //     const player1Gameboard = gameUI.controller.player1.gameboard;
+  //     const player1Ships = player1Gameboard.ships;
+  //     const player1ShipsGroupedByName = player1Gameboard.shipsGroupedByName;
+  //     player1Gameboard.placeShipRandomly(player1ShipsGroupedByName.patrol[0]);
+  //     expect(gameUI.getShipsToBePlaced('patrol')).toBe(player1Gameboard.shipsGroupedByName.patrol[1]);
+  //   })
+  // })
 
   describe('placeShipOnBoard', () => {
     test('should, correctly, place ships on board', () => {

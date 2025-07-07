@@ -1,88 +1,147 @@
-import Gameboard from "../Gameboard.js";
-
-const gameboard = new Gameboard();
-const shipsByName = gameboard.shipsGroupedByName;
-
 export default class BoardRenderer {
-  constructor(playerContainer, opponentContainer) {
-    this.playerContainer = playerContainer;
-    this.opponentContainer = opponentContainer;
+  constructor(player1Gameboard, player2Gameboard) {
+    this.player1Gameboard = player1Gameboard;
+    this.player2Gameboard = player2Gameboard;
   }
 
-  createGameBoardsHTML() {
+  createHTMLElement(classes = undefined, id = undefined, element = 'div') {
+      const el = document.createElement(element);
+
+      if (el.constructor.name === 'HTMLUnknownElement') {
+        throw new Error(`Invalid HTML Element: ${element}`);
+      }
+  
+      if (classes && classes.length > 0) {
+        classes.forEach((cl) => {
+          el.classList.add(cl);
+        })
+      };
+  
+      if (id) el.id = id;
+
+      return el;
+  }
+
+  createGrid(boardId) {
     const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
     
-    const createGrid = function createGrid (boardId) {
-      let gridHTML = `<div class="grid" id="${boardId}">`;
-      
-      // Primeira linha - header com coordenadas
-      gridHTML += '<div class="grid-cell coordinate"></div>'; // canto vazio
-      columns.forEach(col => {
-        gridHTML += `<div class="grid-cell coordinate">${col}</div>`;
+    const divGrid = this.createHTMLElement(['grid'], boardId);
+
+    const upperLeftCorner = this.createHTMLElement(['grid-cell', 'coordinate']);
+    divGrid.appendChild(upperLeftCorner);
+
+    columns.forEach((col) => {
+      const divColHeader = this.createHTMLElement(['grid-cell', 'coordinate']);
+      divColHeader.textContent = col;
+      divGrid.appendChild(divColHeader);
+    });
+
+    for (let row = 1; row <= 10; row++) {
+      const divRowHeader = this.createHTMLElement(['grid-cell', 'coordinate']);
+      divRowHeader.textContent = row;
+      divGrid.appendChild(divRowHeader);
+
+      columns.forEach((col) => {
+        const position = `${col}${row}`;
+        const rowIndex = row - 1;
+        const colIndex = columns.indexOf(col);
+
+        const gameCell = this.createHTMLElement(['grid-cell']);
+        gameCell.dataset.position = position;
+        gameCell.dataset.row = rowIndex;
+        gameCell.dataset.col = colIndex;
+        divGrid.appendChild(gameCell);
       });
-      
-      // Linhas 1-10 do jogo
-      for (let row = 1; row <= 10; row++) {
-        // Primeira célula da linha - número da linha
-        gridHTML += `<div class="grid-cell coordinate">${row}</div>`;
-        
-        // Células de jogo da linha
-        columns.forEach(col => {
-          const position = `${col}${row}`;
-          const rowIndex = row - 1; // Para array 0-indexed
-          const colIndex = columns.indexOf(col); // Para array 0-indexed
-          
-          gridHTML += `<div class="grid-cell" data-position="${position}" data-row="${rowIndex}" data-col="${colIndex}"></div>`;
-        });
-      }
-      
-      gridHTML += '</div>';
-      return gridHTML;
     };
 
+    return divGrid;
+  }
+
+  createShipsRemainingDiv(gameboard) {
     const firstLetterCaps = function firstLetterCaps(str) {
       return str[0].toUpperCase().concat(str.slice(1));
     }
-
-    const createShipTypeDivs = function createShipTypeDivs() {
-      let shipTypeDivs = '';
-      Object.entries(shipsByName).forEach(([shipName, ships]) => {
-        shipTypeDivs += `
-        <div class="ship-type" data-ship-type="${shipName}">
-          <span class="ship-name">🛳️ ${firstLetterCaps(shipName)} (${ships[0].shipInfo.length})</span>
-          <span class="btn-random" title="Randomly position ship">🔀</span>
-          <span class="ship-count">${ships.length}</span>
-        </div>
-            `
-      })
-      return shipTypeDivs;
-    }
     
-    return `
-      <div class="game-boards">
-        <div class="board-section">
-          <h2 class="board-title">🛡️ Your Fleet</h2>
-          ${createGrid('player-board')}
-          <div class="ships-remaining">
-            ${createShipTypeDivs()}
-            <div class="fleet-controls-section">
-              <button class="btn-clear-all" title="Remove all ships from board">🧹</button>
-              <button class="btn-random-all" title="Randomly position all ships">🔀</button>
-            </div>
-          </div>
-        </div>
-        <div class="board-section">
-          <h2 class="board-title">🎯 Enemy Field</h2>
-          ${createGrid('enemy-board')}
-          <div class="ships-remaining">
-            ${createShipTypeDivs()}
-            <div class="fleet-controls-section">
-              <button class="btn-clear-all" title="Remove all ships from board">🧹</button>
-              <button class="btn-random-all" title="Randomly position all ships">🔀</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
+    const shipsGroupedByName = gameboard.shipsGroupedByName;
+    const divShipsRemaining = this.createHTMLElement(['ships-remaining']);
+    
+    Object.entries(shipsGroupedByName).forEach(([shipType, ships]) => {
+      const divShipType = this.createHTMLElement(['ship-type']);
+      divShipType.dataset.shipType = shipType;
+
+      const spanShipName = this.createHTMLElement(['ship-name'], undefined, 'span');
+      spanShipName.textContent = `${ships[0].shipInfo.emoji} ${firstLetterCaps(shipType)} (${ships[0].shipInfo.length})`;
+      divShipType.appendChild(spanShipName);
+
+      const spanBtnRandom = this.createHTMLElement(['btn-random'], undefined, 'span');
+      spanBtnRandom.title = 'Randomly position ship';
+      spanBtnRandom.textContent = '🔀';
+      divShipType.appendChild(spanBtnRandom);
+
+      const spanShipCount = this.createHTMLElement(['ship-count'], undefined, 'span');
+      spanShipCount.textContent = ships.length;
+      divShipType.appendChild(spanShipCount);
+
+      divShipsRemaining.appendChild(divShipType);
+    });
+
+    const divFleetControlsSections = this.createHTMLElement(['fleet-controls-section']);
+    
+    const btnClearAll = this.createHTMLElement(['btn-clear-all'], undefined, 'button');
+    btnClearAll.title = 'Remove all ships from board';
+    btnClearAll.textContent = '🧹'
+    divFleetControlsSections.appendChild(btnClearAll);
+
+    const btnRandomAll = this.createHTMLElement(['btn-random-all'], undefined, 'button');
+    btnRandomAll.title = 'Randomly position all ships';
+    btnRandomAll.textContent = '🔀'
+    divFleetControlsSections.appendChild(btnRandomAll);
+
+    divShipsRemaining.appendChild(divFleetControlsSections);
+
+    return divShipsRemaining;
+  }
+
+  createPlayer1BoardSection() {
+    const divBoardSection = this.createHTMLElement(['board-section']);
+    
+    const h2 = this.createHTMLElement(['board-title'], undefined, 'h2');
+    h2.textContent = '🛡️ Your Fleet';
+    divBoardSection.appendChild(h2);
+
+    const grid = this.createGrid('player-board');
+    divBoardSection.appendChild(grid);
+
+    const divShipsRemaining = this.createShipsRemainingDiv(this.player1Gameboard);
+    divBoardSection.appendChild(divShipsRemaining);
+
+    return divBoardSection;
+  }
+
+  createPlayer2BoardSection() {
+    const divBoardSection = this.createHTMLElement(['board-section']);
+    
+    const h2 = this.createHTMLElement(['board-title'], undefined, 'h2');
+    h2.textContent = '🎯 Enemy Field';
+    divBoardSection.appendChild(h2);
+
+    const grid = this.createGrid('enemy-board');
+    divBoardSection.appendChild(grid);
+
+    const divShipsRemaining = this.createShipsRemainingDiv(this.player2Gameboard);
+    divBoardSection.appendChild(divShipsRemaining);
+
+    return divBoardSection;
+  }
+
+  createDivGameBoards() {
+    const divGameBoard = this.createHTMLElement(['game-boards']);
+    const player1BoardSection = this.createPlayer1BoardSection();
+    const player2BoardSection = this.createPlayer2BoardSection();
+
+    divGameBoard.appendChild(player1BoardSection);
+    divGameBoard.appendChild(player2BoardSection);
+
+    return divGameBoard;
   }
 }
