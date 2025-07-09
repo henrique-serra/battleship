@@ -27,6 +27,20 @@ export default class Gameboard {
     }, {})
   }
 
+  getShipsPositionedByName() {
+    return Object.entries(this.shipsGroupedByName).reduce((shipsPositioned, [shipType, ships]) => {
+      shipsPositioned[shipType] = ships.filter((ship) => ship.positions.length > 0);
+      return shipsPositioned;
+    }, {})
+  }
+
+  getShipsNotPositionedByName() {
+    return Object.entries(this.shipsGroupedByName).reduce((shipsNotPositioned, [shipType, ships]) => {
+      shipsNotPositioned[shipType] = ships.filter((ship) => ship.positions.length === 0);
+      return shipsNotPositioned;
+    }, {})
+  }
+
   createGameBoard() {
     return Array.from({ length: 10 }, (_) => Array.from({ length: 10 }, (_) => ({ ship: null, hitTaken: false })));
   }
@@ -125,9 +139,11 @@ export default class Gameboard {
     
     const ship = this.defenseBoard[row][col].ship;
     if(ship) {
-      ship.hit()
+      ship.hit();
+      return { hit: true, ship }
     } else {
       this.missedAttacks.push([row, col]);
+      return { hit: false, ship: null }
     }
   }
 
@@ -137,6 +153,110 @@ export default class Gameboard {
     }
 
     return true;
+  }
+
+  getRemainingShipsByType() {
+    const allShipsByName = this.groupShipsByName();
+    const remainingShips = {};
+    
+    // Para cada tipo de navio, conta apenas os não afundados
+    Object.entries(allShipsByName).forEach(([shipType, ships]) => {
+      remainingShips[shipType] = ships.filter(ship => !ship.isSunk()).length;
+    });
+    
+    return remainingShips;
+  }
+
+  getTotalShipsByType() {
+    const totalShips = {};
+    
+    this.ships.forEach(ship => {
+      const shipType = ship.shipInfo.name;
+      
+      if (!totalShips[shipType]) {
+        totalShips[shipType] = 0;
+      }
+      
+      totalShips[shipType]++;
+    });
+    
+    return totalShips;
+  }
+
+  isShipTypeDestroyed(shipType) {
+    const shipsOfType = this.ships.filter(ship => ship.shipInfo.name === shipType);
+    
+    return shipsOfType.length > 0 && shipsOfType.every(ship => ship.isSunk());
+  }
+
+  removeShipsByType(shipType) {
+    console.log(`Removing ships of type: ${shipType}`);
+    
+    // Encontra navios do tipo especificado
+    const shipsToRemove = this.ships.filter(ship => ship.shipInfo.name === shipType);
+    
+    if (shipsToRemove.length === 0) {
+      console.warn(`No ships of type "${shipType}" found to remove`);
+      return;
+    }
+    
+    // Remove navios das células do tabuleiro
+    shipsToRemove.forEach(ship => {
+      ship.positions.forEach(([row, col]) => {
+        // Remove referência do navio da célula
+        if (this.defenseBoard[row] && this.defenseBoard[row][col]) {
+          this.defenseBoard[row][col].ship = null;
+        }
+      });
+    });
+    
+    // Remove navios do array this.ships
+    this.ships = this.ships.filter(ship => ship.shipInfo.name !== shipType);
+    
+    console.log(`Removed ${shipsToRemove.length} ships of type "${shipType}"`);
+    
+    return shipsToRemove; // Retorna navios removidos (útil para debug)
+  }
+
+  // Método auxiliar - remove todos os navios
+  clearAllShips() {
+    console.log('Clearing all ships from gameboard');
+    
+    // Limpa todas as células do tabuleiro
+    this.defenseBoard.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        if (cell && cell.ship) {
+          cell.ship = null;
+        }
+      });
+    });
+    
+    // Limpa array de navios
+    this.ships = [];
+    
+    console.log('All ships cleared');
+  }
+
+  // Método auxiliar - verifica se uma posição está livre
+  isPositionFree(row, col) {
+    return this.defenseBoard[row] && 
+          this.defenseBoard[row][col] && 
+          !this.defenseBoard[row][col].ship;
+  }
+
+  // Método auxiliar - verifica se posições estão livres para um navio
+  arePositionsFree(positions) {
+    return positions.every(([row, col]) => {
+      // Verifica se está dentro dos limites
+      if (row < 0 || col < 0 || 
+          row >= this.defenseBoard.length || 
+          col >= this.defenseBoard[0].length) {
+        return false;
+      }
+      
+      // Verifica se a posição está livre
+      return this.isPositionFree(row, col);
+    });
   }
 
   resetGameboard() {

@@ -19,7 +19,17 @@ beforeEach(() => {
 });
 
 describe('GameUI', () => {
-  describe('getShip', () => {
+  describe('getNextShipToPlace', () => {
+    test('should consider the correct player', () => {
+      const c = gameUI.controller;
+      const divGridPlayer1Board = document.querySelector('#player-board');
+      const divPlayer1ShipsRemaining = divGridPlayer1Board.nextElementSibling;
+      const carrierDiv = divPlayer1ShipsRemaining.querySelector('[data-ship-type="carrier"]');
+      const player1CarrierShip = c.player1.gameboard.ships.find(({ shipInfo }) => shipInfo.name === 'carrier');
+
+      expect(gameUI.getNextShipToPlace(carrierDiv)).toBe(player1CarrierShip);
+    })
+    
     test('should return the correct ship', () => {
       const c = gameUI.controller;
       const carrierDiv = document.querySelector('[data-ship-type="carrier"]');

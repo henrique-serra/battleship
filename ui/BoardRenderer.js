@@ -65,6 +65,7 @@ export default class BoardRenderer {
     const shipsGroupedByName = gameboard.shipsGroupedByName;
     const divShipsRemaining = this.createHTMLElement(['ships-remaining']);
     
+    // Ship type divs
     Object.entries(shipsGroupedByName).forEach(([shipType, ships]) => {
       const divShipType = this.createHTMLElement(['ship-type']);
       divShipType.dataset.shipType = shipType;
@@ -88,11 +89,13 @@ export default class BoardRenderer {
     const divFleetControlsSections = this.createHTMLElement(['fleet-controls-section']);
     
     const btnClearAll = this.createHTMLElement(['btn-clear-all'], undefined, 'button');
+    btnClearAll.dataset.board = gameboard === this.player1Gameboard ? 'player' : 'enemy';
     btnClearAll.title = 'Remove all ships from board';
     btnClearAll.textContent = '🧹'
     divFleetControlsSections.appendChild(btnClearAll);
 
     const btnRandomAll = this.createHTMLElement(['btn-random-all'], undefined, 'button');
+    btnRandomAll.dataset.board = gameboard === this.player1Gameboard ? 'player' : 'enemy';
     btnRandomAll.title = 'Randomly position all ships';
     btnRandomAll.textContent = '🔀'
     divFleetControlsSections.appendChild(btnRandomAll);
@@ -143,5 +146,64 @@ export default class BoardRenderer {
     divGameBoard.appendChild(player2BoardSection);
 
     return divGameBoard;
+  }
+
+  updateCell(boardId, row, col, state) {
+    const board = document.getElementById(boardId);
+    const cell = board.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    
+    if (!cell) {
+      console.error(`Cell not found: ${boardId} [${row}, ${col}]`);
+      return;
+    }
+
+    // Remove classes anteriores de estado
+    cell.classList.remove('hit', 'miss', 'ship', 'sunk');
+    
+    // Adiciona nova classe baseada no estado
+    if (state) {
+      cell.classList.add(state);
+    }
+  }
+
+  showHit(boardId, row, col) {
+    this.updateCell(boardId, row, col, 'hit');
+  }
+
+  showMiss(boardId, row, col) {
+    this.updateCell(boardId, row, col, 'miss');
+  }
+
+  showShip(boardId, row, col) {
+    this.updateCell(boardId, row, col, 'ship');
+  }
+
+  showSunk(boardId, row, col) {
+    this.updateCell(boardId, row, col, 'sunk');
+  }
+
+  updateMultipleCells(boardId, positions, state) {
+    positions.forEach(([row, col]) => {
+      this.updateCell(boardId, row, col, state);
+    });
+  }
+
+  showAllShips(boardId, gameboard) {
+    gameboard.ships.forEach(ship => {
+      ship.positions.forEach(([row, col]) => {
+        this.showShip(boardId, row, col);
+      });
+    });
+  }
+
+  updateShipCount(boardId, shipType, newCount) {
+    const board = document.querySelector('#boardId');
+    const shipTypeDiv = board.nextElementSibling.querySelector(`[data-ship-type="${shipType}"]`);
+    if (shipTypeDiv) {
+      const countSpan = shipTypeDiv.querySelector('.ship-count');
+      if (countSpan) {
+        countSpan.textContent = newCount;
+      }
+    }
   }
 }
