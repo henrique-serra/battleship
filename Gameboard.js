@@ -41,6 +41,19 @@ export default class Gameboard {
     }, {})
   }
 
+  getQtyShipsNotPositioned(shipType) {
+    const shipsNotPositioned = this.getShipsNotPositionedByName();
+    return shipsNotPositioned[shipType].length;
+  }
+
+  allShipsPositioned() {
+    for (const { positions } of this.ships) {
+      if (positions.length === 0) return false;
+    }
+
+    return true;
+  }
+
   createGameBoard() {
     return Array.from({ length: 10 }, (_) => Array.from({ length: 10 }, (_) => ({ ship: null, hitTaken: false })));
   }
@@ -216,47 +229,6 @@ export default class Gameboard {
     console.log(`Removed ${shipsToRemove.length} ships of type "${shipType}"`);
     
     return shipsToRemove; // Retorna navios removidos (útil para debug)
-  }
-
-  // Método auxiliar - remove todos os navios
-  clearAllShips() {
-    console.log('Clearing all ships from gameboard');
-    
-    // Limpa todas as células do tabuleiro
-    this.defenseBoard.forEach((row, rowIndex) => {
-      row.forEach((cell, colIndex) => {
-        if (cell && cell.ship) {
-          cell.ship = null;
-        }
-      });
-    });
-    
-    // Limpa array de navios
-    this.ships = [];
-    
-    console.log('All ships cleared');
-  }
-
-  // Método auxiliar - verifica se uma posição está livre
-  isPositionFree(row, col) {
-    return this.defenseBoard[row] && 
-          this.defenseBoard[row][col] && 
-          !this.defenseBoard[row][col].ship;
-  }
-
-  // Método auxiliar - verifica se posições estão livres para um navio
-  arePositionsFree(positions) {
-    return positions.every(([row, col]) => {
-      // Verifica se está dentro dos limites
-      if (row < 0 || col < 0 || 
-          row >= this.defenseBoard.length || 
-          col >= this.defenseBoard[0].length) {
-        return false;
-      }
-      
-      // Verifica se a posição está livre
-      return this.isPositionFree(row, col);
-    });
   }
 
   resetGameboard() {

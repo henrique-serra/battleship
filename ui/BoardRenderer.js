@@ -1,7 +1,20 @@
+import Controller from "../Controller.js";
+
 export default class BoardRenderer {
-  constructor(player1Gameboard, player2Gameboard) {
-    this.player1Gameboard = player1Gameboard;
-    this.player2Gameboard = player2Gameboard;
+  constructor() {
+    this.controller = new Controller();
+    this.player1Gameboard = this.controller.player1.gameboard;
+    this.player2Gameboard = this.controller.player2.gameboard;
+    this.renderBoards();
+  }
+
+  renderBoards() {
+    const currentDivGameBoard = document.querySelector('.game-boards');
+    if (currentDivGameBoard) currentDivGameBoard.remove();
+    
+    const divGameBoard = this.createDivGameBoards();
+    const divControls = document.querySelector('.controls');
+    divControls.before(divGameBoard);
   }
 
   createHTMLElement(classes = undefined, id = undefined, element = 'div') {
@@ -148,8 +161,10 @@ export default class BoardRenderer {
     return divGameBoard;
   }
 
-  updateCell(boardId, row, col, state) {
+  updateCell(boardId, row, col, state, text = undefined) {
     const board = document.getElementById(boardId);
+    row = String(row);
+    col = String(col);
     const cell = board.querySelector(`[data-row="${row}"][data-col="${col}"]`);
     
     if (!cell) {
@@ -157,13 +172,12 @@ export default class BoardRenderer {
       return;
     }
 
-    // Remove classes anteriores de estado
     cell.classList.remove('hit', 'miss', 'ship', 'sunk');
     
-    // Adiciona nova classe baseada no estado
-    if (state) {
-      cell.classList.add(state);
-    }
+    if (state) cell.classList.add(state);
+    if (text) cell.textContent = text;
+
+    return cell;
   }
 
   showHit(boardId, row, col) {
@@ -174,12 +188,22 @@ export default class BoardRenderer {
     this.updateCell(boardId, row, col, 'miss');
   }
 
-  showShip(boardId, row, col) {
-    this.updateCell(boardId, row, col, 'ship');
+  showShip(boardId, row, col, text = undefined) {
+    this.updateCell(boardId, row, col, 'ship', text);
   }
 
   showSunk(boardId, row, col) {
     this.updateCell(boardId, row, col, 'sunk');
+  }
+
+  placeShip(ship, boardId) {
+    ship.positions.forEach(([row, col]) => this.showShip(boardId, row, col, ship.shipInfo.emoji));
+  }
+
+  removeShip(ship, boardId) {
+    ship.positions.forEach(([row, col]) => {
+      this.updateCell(boardId, row, col, '');
+    });
   }
 
   updateMultipleCells(boardId, positions, state) {
@@ -196,8 +220,11 @@ export default class BoardRenderer {
     });
   }
 
-  updateShipCount(boardId, shipType, newCount) {
-    const board = document.querySelector('#boardId');
+  updateShipCount(boardId, shipType) {
+    const gameboard = boardId === 'player-board' ? this.player1Gameboard : this.player2Gameboard;
+    const newCount = gameboard.getQtyShipsNotPositioned(shipType);
+    
+    const board = document.querySelector(`#${boardId}`);
     const shipTypeDiv = board.nextElementSibling.querySelector(`[data-ship-type="${shipType}"]`);
     if (shipTypeDiv) {
       const countSpan = shipTypeDiv.querySelector('.ship-count');

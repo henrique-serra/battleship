@@ -125,7 +125,7 @@ body {
 }
 
 .hit::after {
-    content: '💥';
+    /* content: '💥'; */
     font-size: 1.2rem;
     position: absolute;
     top: 50%;

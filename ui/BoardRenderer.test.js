@@ -59,6 +59,6 @@ describe('BoardRenderer', () => {
       expect(h2).toBeDefined();
       expect(h2 instanceof HTMLHeadingElement).toBe(true);
       expect(h2.tagName).toBe('H2');
-    })
-  })
+    });
+  });
 })

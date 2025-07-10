@@ -22,6 +22,97 @@ describe('Gameboard class', () => {
       expect(shipsByName.battleship).toHaveLength(1);
       expect(shipsByName.carrier).toHaveLength(1);
     })
+  });
+
+  describe('getShipsPositionedByName', () => {
+    test('no ships positioned', () => {
+      const shipsPositioned = gameboard.getShipsPositionedByName();
+      Object.values(shipsPositioned).forEach((ships) => {
+        expect(ships).toHaveLength(0);
+      })
+    });
+
+    test('all ships positioned', () => {
+      const shipsByType = gameboard.groupShipsByName();
+      
+      gameboard.ships.forEach((ship) => {
+        gameboard.placeShipRandomly(ship);
+      });
+
+      const shipsPositioned = gameboard.getShipsPositionedByName();
+
+      Object.entries(shipsPositioned).forEach(([shipType, ships]) => {
+        const qtyShips = shipsByType[shipType].length;
+        expect(ships).toHaveLength(qtyShips);
+      });
+    });
+
+    test('one of each type positioned', () => {
+      const shipsByType = gameboard.groupShipsByName();
+
+      Object.entries(shipsByType).forEach(([shipType, ships]) => {
+        gameboard.placeShipRandomly(ships[0]);
+      });
+
+      const shipsPositioned = gameboard.getShipsPositionedByName();
+
+      Object.entries(shipsPositioned).forEach(([shipType, ships]) => {
+        expect(ships).toHaveLength(1);
+      })
+    })
+  });
+
+  describe('getShipsNotPositionedByName', () => {
+    test('no ships positioned', () => {
+      const shipsByType = gameboard.groupShipsByName();
+      const shipsNotPositioned = gameboard.getShipsNotPositionedByName();
+
+      Object.entries(shipsNotPositioned).forEach(([shipType, ships]) => {
+        const qtyShips = shipsByType[shipType].length;
+        expect(ships).toHaveLength(qtyShips);
+      })
+    });
+
+    test('all ships positioned', () => {
+      gameboard.ships.forEach((ship) => gameboard.placeShipRandomly(ship));
+
+      const shipsNotPositioned = gameboard.getShipsNotPositionedByName();
+      Object.values(shipsNotPositioned).forEach((ships) => {
+        expect(ships).toHaveLength(0);
+      })
+    });
+  });
+
+  describe('getQtyShipsNotPositioned', () => {
+    test('no ships positioned', () => {
+      const shipsByType = gameboard.groupShipsByName();
+      Object.entries(shipsByType).forEach(([shipType, ships]) => {
+        const qtyShipsNotPositioned = gameboard.getQtyShipsNotPositioned(shipType);
+        expect(qtyShipsNotPositioned).toBe(ships.length);
+      })
+    });
+
+    test('all ships positioned', () => {
+      const shipsByType = gameboard.groupShipsByName();
+
+      gameboard.ships.forEach((ship) => gameboard.placeShipRandomly(ship));
+      
+      Object.keys(shipsByType).forEach((shipType) => {
+        const qtyShipsNotPositioned = gameboard.getQtyShipsNotPositioned(shipType);
+        expect(qtyShipsNotPositioned).toBe(0);
+      })
+    });
+  });
+
+  describe('allShipsPositioned', () => {
+    test('no ships positioned', () => {
+      expect(gameboard.allShipsPositioned()).toBe(false);
+    });
+
+    test('all ships positioned', () => {
+      gameboard.ships.forEach((ship) => gameboard.placeShipRandomly(ship));
+      expect(gameboard.allShipsPositioned()).toBe(true);
+    })
   })
 
   describe('placeShip should place ships correctly', () => {
