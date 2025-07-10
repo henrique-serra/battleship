@@ -41,6 +41,11 @@ export default class Gameboard {
     }, {})
   }
 
+  getNextShipToPosition(shipType) {
+    const shipsNotPositioned = this.getShipsNotPositionedByName();
+    return shipsNotPositioned[shipType][0];
+  }
+
   getQtyShipsNotPositioned(shipType) {
     const shipsNotPositioned = this.getShipsNotPositionedByName();
     return shipsNotPositioned[shipType].length;

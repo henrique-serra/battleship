@@ -222,7 +222,8 @@ export default class BoardRenderer {
 
   updateShipCount(boardId, shipType) {
     const gameboard = boardId === 'player-board' ? this.player1Gameboard : this.player2Gameboard;
-    const newCount = gameboard.getQtyShipsNotPositioned(shipType);
+    const newCount = String(gameboard.getQtyShipsNotPositioned(shipType));
+    console.log(newCount);
     
     const board = document.querySelector(`#${boardId}`);
     const shipTypeDiv = board.nextElementSibling.querySelector(`[data-ship-type="${shipType}"]`);
@@ -232,5 +233,13 @@ export default class BoardRenderer {
         countSpan.textContent = newCount;
       }
     }
+  }
+
+  selectShip(shipTypeDiv) {
+    shipTypeDiv.classList.add('selected');
+  }
+
+  clearShipSelection(shipTypeDiv) {
+    shipTypeDiv.classList.remove('selected');
   }
 }

@@ -3,6 +3,7 @@ import BoardRenderer from "./BoardRenderer.js";
 export default class GameUI {
   constructor() {
     this.boardRenderer = new BoardRenderer();
+    this.selectedShip = null;
   }
 
   placeShip(ship, boardId, row, col, horizontally = true) {
@@ -47,5 +48,18 @@ export default class GameUI {
     if (result.hit) {
       this.boardRenderer.showHit(boardId, row, col);
     } else this.boardRenderer.showMiss(boardId, row, col);
+  }
+
+  selectShip(shipTypeDiv) {
+    const boardId = shipTypeDiv.parentElement.previousElementSibling.id;
+    const gameboard = boardId === 'player-board' ? this.boardRenderer.player1Gameboard : this.boardRenderer.player2Gameboard;
+
+    this.boardRenderer.selectShip(shipTypeDiv);
+
+    const selectedShip = gameboard.getNextShipToPosition(shipTypeDiv.dataset.shipType);
+
+    console.log(selectedShip);
+
+    return selectedShip;
   }
 }
