@@ -11,15 +11,8 @@ export default class EventHandlers {
   }
 
   setupBoardClickListeners() {
-    const playerBoard = document.getElementById('player-board');
-    if (playerBoard) {
-      playerBoard.addEventListener('click', (event) => {
-        if (event.target.classList.contains('grid-cell') && 
-            !event.target.classList.contains('coordinate')) {
-          this.handlePlayerBoardClick(event);
-        }
-      });
-    }
+    const playerBoard = document.querySelector('#player-board');
+    playerBoard.addEventListener('click', this.gameUI.handlePlayer1BoardClick.bind(this));
 
     const enemyBoard = document.getElementById('enemy-board');
     if (enemyBoard) {
@@ -55,24 +48,16 @@ export default class EventHandlers {
   }
 
   setupShipButtonListeners() {
-    const shipTypeDivs = document.querySelectorAll('.ship-type');
-    shipTypeDivs.forEach((div) => {
-      div.addEventListener('click', this.handleShipTypeClick.bind(this));
+    const shisRemaningDivPlayer1 = document.querySelectorAll('.ships-remaining')[0];
+    const shipTypeDivsPlayer1 = shisRemaningDivPlayer1.querySelectorAll('.ship-type');
+    shipTypeDivsPlayer1.forEach((div) => {
+      div.addEventListener('click', this.gameUI.handleShipTypePlayer1Click.bind(this));
     })
     
     const randomShipBtns = document.querySelectorAll('.btn-random');
     randomShipBtns.forEach(btn => {
       btn.addEventListener('click', this.handleRandomShipClick.bind(this));
     });
-  }
-
-  handlePlayerBoardClick(event) {
-    const row = parseInt(event.target.dataset.row);
-    const col = parseInt(event.target.dataset.col);
-    
-    console.log(`Player board clicked: [${row}, ${col}]`);
-    
-    this.gameUI.handlePlayerBoardClick(row, col);
   }
 
   handleEnemyBoardClick(event) {
@@ -125,17 +110,6 @@ export default class EventHandlers {
     const ship = player.gameboard.getNextShipToPosition(shipType);
 
     this.gameUI.placeShipRandomly(ship, boardId);
-  }
-
-  handleShipTypeClick(event) {
-    const shipTypeDiv = event.target.closest('.ship-type');
-    const shipType = shipTypeDiv.dataset.shipType;
-    const boardId = shipTypeDiv.parentElement.previousElementSibling.id;
-    const selectedShip = boardId === 'player-board' ? this.gameUI.selectedShipPlayer1 : this.gameUI.selectedShipPlayer2;
-
-    this.gameUI.clearShipSelection(event);
-
-    if (!selectedShip || selectedShip.shipInfo.name !== shipType) this.gameUI.selectShip(event);
   }
 
   // Método para remover todos os event listeners (útil para cleanup)

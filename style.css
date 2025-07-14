@@ -221,6 +221,26 @@ body {
     border-color: #45a049;
 }
 
+.ship-type.disabled {
+    background: rgba(128, 128, 128, 0.3);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.ship-type.disabled:hover {
+    background: rgba(128, 128, 128, 0.3);
+    color: rgba(255, 255, 255, 0.5);
+    transform: none;
+    cursor: not-allowed;
+}
+
+.ship-type.disabled .ship-count {
+    background: rgba(255, 215, 0, 0.4);
+    color: rgba(30, 60, 114, 0.6);
+}
+
 /* Modal de orientação */
 .orientation-modal {
     position: absolute;

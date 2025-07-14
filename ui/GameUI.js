@@ -7,6 +7,52 @@ export default class GameUI {
     this.selectedShipPlayer2 = null;
   }
 
+  handleShipTypePlayer1Click(event) {
+    const shipTypeDiv = event.target.closest('.ship-type');
+    const shipType = shipTypeDiv.dataset.shipType;
+    const shipsRemainingDiv = shipTypeDiv.parentElement;
+    const shipTypeDivs = shipsRemainingDiv.querySelectorAll('.ship-type');
+    const ship = this.gameUI.boardRenderer.controller.player1.gameboard.getNextShipToPosition(shipType);
+    
+    if (!this.selectedShipPlayer1) {
+      this.selectedShipPlayer1 = ship;
+      shipTypeDiv.classList.add('selected');
+    } else if (this.selectedShipPlayer1 && shipType === this.selectedShipPlayer1.shipInfo.name) {
+      this.selectedShipPlayer1 = null;
+      shipTypeDiv.classList.remove('selected');
+    } else {
+      this.selectedShipPlayer1 = ship;
+      shipTypeDivs.forEach((div) => {
+        if (div.classList.contains('selected')) div.classList.remove('selected');
+        if (div === shipTypeDiv) div.classList.add('selected');
+      })
+    }
+  }
+
+  handlePlayer1BoardClick(event) {
+    const row = parseInt(event.target.dataset.row);
+    const col = parseInt(event.target.dataset.col);
+
+    console.log(this.selectedShipPlayer1);
+
+    if (this.gameUI.boardRenderer.controller.gamePhase === 'positioning' && this.selectedShipPlayer1) {
+      const shipType = this.selectedShipPlayer1.shipInfo.name;
+      
+      this.gameUI.boardRenderer.controller.player1.gameboard.placeShip(this.selectedShipPlayer1, row, col);
+      this.gameUI.boardRenderer.placeShip(this.selectedShipPlayer1, 'player-board');
+
+      const nextShipToPosition = this.gameUI.boardRenderer.controller.player1.gameboard.getNextShipToPosition(shipType);
+      
+      this.selectedShipPlayer1 = nextShipToPosition ? nextShipToPosition : null;
+      
+      if (!this.selectedShipPlayer1) {
+        const shipTypeDiv = document.querySelectorAll(`[data-ship-type="${shipType}"]`)[0];
+        shipTypeDiv.classList.remove('selected');
+        shipTypeDiv.classList.add('disabled');
+      }
+    }
+  }
+
   placeShip(ship, boardId, row, col, horizontally = true) {
     const player = boardId === 'player-board' ? this.boardRenderer.controller.player1 : this.boardRenderer.controller.player2;
     
@@ -59,46 +105,5 @@ export default class GameUI {
     if (result.hit) {
       this.boardRenderer.showHit(boardId, row, col);
     } else this.boardRenderer.showMiss(boardId, row, col);
-  }
-
-  selectShip(event) {
-    const shipTypeDiv = event.target.closest('.ship-type');
-    const shipType = shipTypeDiv ? shipTypeDiv.dataset.shipType : null;
-    const board = shipTypeDiv.parentElement.previousElementSibling;
-    
-    if (board.id === 'player-board') {
-      this.selectedShipPlayer1 = this.boardRenderer.controller.player1.gameboard.getNextShipToPosition(shipType);
-    } else {
-      this.selectedShipPlayer2 = this.boardRenderer.controller.player2.gameboard.getNextShipToPosition(shipType);
-    }
-
-    shipTypeDiv.classList.add('selected');
-
-    return { 
-      selectedShipPlayer1: this.selectedShipPlayer1,
-      selectedShipPlayer2: this.selectedShipPlayer2
-    }
-  }
-
-  clearShipSelection(event) {
-    const shipTypeDiv = event.target.closest('.ship-type');
-    const shipsRemainingDiv = shipTypeDiv.parentElement;
-    const board = shipsRemainingDiv.previousElementSibling;
-    const shipTypeDivs = shipsRemainingDiv.querySelectorAll('.ship-type');
-
-    if (board.id === 'player-board') {
-      this.selectedShipPlayer1 = null;
-    } else {
-      this.selectedShipPlayer2 = null;
-    }
-
-    [...shipTypeDivs].forEach((div) => {
-      if (div.classList.contains('selected')) div.classList.remove('selected');
-    });
-
-    return { 
-      selectedShipPlayer1: this.selectedShipPlayer1,
-      selectedShipPlayer2: this.selectedShipPlayer2
-    }
   }
 }
