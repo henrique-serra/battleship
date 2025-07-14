@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
   gameUI.boardRenderer.updateShipCount('player-board', 'patrol');
   const playerBoard = document.querySelector('#player-board');
   const patrolTypeDiv = playerBoard.nextElementSibling.querySelector('[data-ship-type="patrol"]');
-  gameUI.selectShip(patrolTypeDiv);
   // ---------------------------------------
 
   const eventHandlers = new EventHandlers(gameUI);

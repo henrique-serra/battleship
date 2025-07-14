@@ -55,6 +55,11 @@ export default class EventHandlers {
   }
 
   setupShipButtonListeners() {
+    const shipTypeDivs = document.querySelectorAll('.ship-type');
+    shipTypeDivs.forEach((div) => {
+      div.addEventListener('click', this.handleShipTypeClick.bind(this));
+    })
+    
     const randomShipBtns = document.querySelectorAll('.btn-random');
     randomShipBtns.forEach(btn => {
       btn.addEventListener('click', this.handleRandomShipClick.bind(this));
@@ -67,9 +72,7 @@ export default class EventHandlers {
     
     console.log(`Player board clicked: [${row}, ${col}]`);
     
-    if (this.gameUI && typeof this.gameUI.handlePlayerBoardClick === 'function') {
-      this.gameUI.handlePlayerBoardClick(row, col);
-    }
+    this.gameUI.handlePlayerBoardClick(row, col);
   }
 
   handleEnemyBoardClick(event) {
@@ -114,13 +117,25 @@ export default class EventHandlers {
   }
 
   handleRandomShipClick(event) {
-    // Encontra o tipo do navio baseado no elemento pai
+    event.stopImmediatePropagation();
     const shipTypeDiv = event.target.closest('.ship-type');
-    const shipType = shipTypeDiv ? shipTypeDiv.dataset.shipType : null;
-    
-    console.log(`Random ship clicked: ${shipType}`);
-    
-    this.gameUI.randomizeShip(shipType);
+    const shipType = shipTypeDiv.dataset.shipType;
+    const boardId = shipTypeDiv.parentElement.previousElementSibling.id;
+    const player = boardId === 'player-board' ? this.gameUI.boardRenderer.controller.player1 : this.gameUI.boardRenderer.controller.player2;
+    const ship = player.gameboard.getNextShipToPosition(shipType);
+
+    this.gameUI.placeShipRandomly(ship, boardId);
+  }
+
+  handleShipTypeClick(event) {
+    const shipTypeDiv = event.target.closest('.ship-type');
+    const shipType = shipTypeDiv.dataset.shipType;
+    const boardId = shipTypeDiv.parentElement.previousElementSibling.id;
+    const selectedShip = boardId === 'player-board' ? this.gameUI.selectedShipPlayer1 : this.gameUI.selectedShipPlayer2;
+
+    this.gameUI.clearShipSelection(event);
+
+    if (!selectedShip || selectedShip.shipInfo.name !== shipType) this.gameUI.selectShip(event);
   }
 
   // Método para remover todos os event listeners (útil para cleanup)

@@ -239,7 +239,7 @@ export default class BoardRenderer {
     shipTypeDiv.classList.add('selected');
   }
 
-  clearShipSelection(shipTypeDiv) {
-    shipTypeDiv.classList.remove('selected');
+  clearShipSelection(boardId) {
+    
   }
 }
