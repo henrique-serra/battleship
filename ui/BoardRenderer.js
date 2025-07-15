@@ -202,8 +202,75 @@ export default class BoardRenderer {
 
   removeShip(ship, boardId) {
     ship.positions.forEach(([row, col]) => {
-      this.updateCell(boardId, row, col, '');
+      this.updateCell(boardId, row, col, '', ' ');
     });
+  }
+
+  disableShipTypeDiv(shipType, boardId) {
+    const shipTypeDiv = this.getShipTypeDiv(shipType, boardId);
+    shipTypeDiv.classList.remove('selected');
+    shipTypeDiv.classList.add('disabled');
+  }
+
+  enableShipTypeDiv(shipType, boardId) {
+    const shipTypeDiv = this.getShipTypeDiv(shipType, boardId);
+    shipTypeDiv.classList.remove('disabled');
+  }
+
+  getShipTypeDiv(shipType, boardId) {
+    let index;
+    if (boardId === 'player-board') {
+      index = 0;
+    } else if (boardId === 'enemy-board') {
+      index = 1;
+    } else {
+      throw new Error('Board id not recognized');
+    }
+
+    return document.querySelectorAll(`[data-ship-type="${shipType}"]`)[index];
+  }
+
+  showAttackPhaseModal() {
+    const modal = document.createElement('div');
+    modal.className = 'attack-phase-modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <h2>🚢 All ships positioned!</h2>
+        <p>Attack phase begins now!</p>
+        <div class="players-ready">
+          <span class="player-indicator">Player 1 ✓</span>
+          <span class="player-indicator">Player 2 ✓</span>
+        </div>
+        <button class="btn-start-attacks">
+          Start Battleship! ⚔️
+        </button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        this.closeModal(modal);
+      }
+    })
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        this.closeModal(modal);
+        document.removeEventListener('keydown', handleKeyDown)
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+  }
+
+  closeModal(modal) {
+    modal.style.animation = 'fadeIn 0.3s ease reverse';
+    setTimeout(() => {
+        if (modal && modal.parentNode) {
+            modal.remove();
+        }
+    }, 300);
   }
 
   updateMultipleCells(boardId, positions, state) {
@@ -236,11 +303,13 @@ export default class BoardRenderer {
     return newCount;
   }
 
-  selectShip(shipTypeDiv) {
+  selectShip(shipType, boardId) {
+    const shipTypeDiv = this.getShipTypeDiv(shipType, boardId);
     shipTypeDiv.classList.add('selected');
   }
 
-  clearShipSelection(boardId) {
-    
+  clearShipSelection(shipType, boardId) {
+    const shipTypeDiv = this.getShipTypeDiv(shipType, boardId);
+    shipTypeDiv.classList.remove('selected');
   }
 }

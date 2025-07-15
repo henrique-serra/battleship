@@ -92,13 +92,21 @@ export default class Gameboard {
 
     if(horizontally) {
       for (let i = col; i < (col + length); i++) {
-        if(this.defenseBoard[row][i].ship !== null) throw new Error('Position already occupied!');
-        ship.positions.push([row, i])
+        if(this.defenseBoard[row][i].ship !== null) {
+          ship.positions = [];
+          throw new Error('Position already occupied!');
+        } else {
+          ship.positions.push([row, i]);
+        }
       }
     } else {
       for (let i = row; i < (row + length); i++) {
-        if(this.defenseBoard[i][col].ship !== null) throw new Error('Position already occupied!');
-        ship.positions.push([i, col]);
+        if(this.defenseBoard[i][col].ship !== null) {
+          ship.positions = [];
+          throw new Error('Position already occupied!');
+        } else {
+          ship.positions.push([i, col]);
+        }
       }
     }
 
