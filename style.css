@@ -337,6 +337,67 @@ body {
     backdrop-filter: blur(10px);
 }
 
+/* Winner modal */
+.modal {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-winner-content {
+    background-color: white;
+    margin: 20% auto;
+    padding: 30px;
+    border-radius: 8px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 20px;
+}
+
+.close:hover {
+    color: black;
+}
+
+.winner-title {
+    color: #28a745;
+    font-size: 24px;
+    margin: 20px 0 10px 0;
+}
+
+.winner-name {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.ok-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.ok-button:hover {
+    background-color: #218838;
+}
+
 /* Toggle de orientação */
 .orientation-toggle {
     display: flex;
@@ -485,6 +546,12 @@ body {
     display: flex;
     justify-content: space-between;
     gap: 10px;
+}
+
+.fleet-controls-section.disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.6;
 }
 
 .btn-clear-all {

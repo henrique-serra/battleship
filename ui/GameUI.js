@@ -174,8 +174,26 @@ export default class GameUI {
   }
 
   player2Attack() {
-    const attacker = this.boardRenderer.controller.player2;
-    const attacked = this.boardRenderer.controller.player1;
-    const [lastAttackRow, lastAttackCol, lastAttackHit, lastAttackShip] = attacker.attacks.at(-1);
+    const result = this.boardRenderer.controller.player2Attack();
+
+    if (result.hit) {
+      this.boardRenderer.showHit('player-board', result.row, result.col);
+    } else this.boardRenderer.showMiss('player-board', result.row, result.col);
+
+    console.log(`Player 2 attacks at ${result.row}, ${result.col}. Hit: ${result.hit}`);
+  }
+  
+  checkWin() {
+    const winner = this.boardRenderer.controller.getWinner();
+
+    if (winner) {
+      this.boardRenderer.controller.setPhase('end');
+      this.boardRenderer.showWinnerModal(winner.name);
+    }
+  }
+
+  startNewGame() {
+    this.boardRenderer.controller.resetGame();
+    this.boardRenderer.renderBoards();
   }
 }

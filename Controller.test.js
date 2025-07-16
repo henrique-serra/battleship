@@ -103,6 +103,39 @@ describe('Controller', () => {
     })
   });
 
+  describe('player2Attack', () => {
+    beforeEach(() => {
+      c.setPhase('attacks');
+      c.turn = c.player2;
+    });
+    
+    test('should not throw', () => {
+      for (let i = 0; i < 100; i++) {
+        expect(() => c.player2Attack()).not.toThrow();
+      }
+    });
+
+    test('should not throw even with positions already attacked', () => {
+      // All cells, except last row
+      for (let r = 0; r < 9; r++) {
+        for (let col = 0; col < 10; col++) {
+          c.player2.attacks.push([r, col, false, null]);
+        }
+      };
+
+      // Last row, excepct last cell
+      for (let col = 0; col < 9; col++) {
+        c.player2.attacks.push([9, c, false, null])
+      };
+
+      expect(() => c.player2Attack()).not.toThrow();
+    });
+
+    test('should attack position close to last hit', () => {
+      
+    })
+  })
+
   describe('getWinner', () => {
     test('Player 1 wins', () => {
       const player1Gameboard = c.player1.gameboard;

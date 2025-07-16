@@ -166,10 +166,10 @@ export default class Gameboard {
     const ship = this.defenseBoard[row][col].ship;
     if(ship) {
       ship.hit();
-      return { hit: true, ship }
+      return { row, col, hit: true, ship }
     } else {
       this.missedAttacks.push([row, col]);
-      return { hit: false, ship: null }
+      return { row, col, hit: false, ship: null }
     }
   }
 

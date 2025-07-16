@@ -52,14 +52,32 @@ class Controller {
   player2Attack() {
     const attacker = this.player2;
     const attacked = this.player1;
+    const randomRow = Math.floor(Math.random() * 10);
+    const randomCol = Math.floor(Math.random() * 10);
 
     if (attacker.attacks.length === 0) {
-      const randomRow = Math.floor(Math.random() * 10);
-      const randomCol = Math.floor(Math.random() * 10);
-      console.log(randomRow);
-      console.log(randomCol);
+      return this.player1.gameboard.receiveAttack(randomRow, randomCol);
+    } else {
+      if (attacker.attacks.some(([r, c]) => r === randomRow && c === randomCol)) return this.player2Attack();
+      // if (attacker.attacks.length === 1) {
+      //   const [lastAttackRow, lastAttackCol, lastAttackHit, lastAttackShip] = attacker.attacks.at(-1);
+      //   if (lastAttackHit) {
+          
+      //   }
+      //   if (attacker.attacks.length > 1) {
+      //     const [secondLastAttackRow, secondLastAttackCol, secondLastAttackHit, secondLastAttackShip] = attacker.attacks.at(-2);
+      //   }
+      // }
+      return this.player1.gameboard.receiveAttack(randomRow, randomCol);
     }
-    const [lastAttackRow, lastAttackCol, lastAttackHit, lastAttackShip] = attacker.attacks.at(-1);
+  }
+
+  player2AttackAfterHit(lastAttackRow, lastAttackCol, secondLastAttackRow = undefined, secondLastAttackCol = undefined) {
+    let nextAttackRow, nextAttackCol;
+
+    if (secondLastAttackRow) {
+      const verticalAttack = (Math.abs(secondLastAttackRow - lastAttackRow) === 1) ? true : false;
+    }
   }
   
   getWinner() {

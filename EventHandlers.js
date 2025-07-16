@@ -152,6 +152,7 @@ export default class EventHandlers {
   handlePlayer2BoardClick(event) {
     const row = parseInt(event.target.dataset.row);
     const col = parseInt(event.target.dataset.col);
+    const player1 = this.gameUI.boardRenderer.controller.player1;
     const player2 = this.gameUI.boardRenderer.controller.player2;
 
     // POSITIONING PHASE
@@ -171,18 +172,19 @@ export default class EventHandlers {
       // IF it's attacks phase and player1 turn, player1 attacks
     } else if (this.gameUI.boardRenderer.controller.gamePhase === 'attacks' && this.gameUI.boardRenderer.controller.turn === this.gameUI.boardRenderer.controller.player1) {
       this.gameUI.attack('enemy-board', row, col);
-      // this.gameUI.boardRenderer.controller.changeTurn();
+      this.gameUI.boardRenderer.updateShotsCount();
+      this.gameUI.boardRenderer.updateHitsCount();
+      this.gameUI.boardRenderer.updatePrecisionPercentage();
+      this.gameUI.checkWin();
+      this.gameUI.boardRenderer.controller.changeTurn();
+      this.gameUI.player2Attack();
+      this.gameUI.checkWin();
+      this.gameUI.boardRenderer.controller.changeTurn();
     }
-
-    console.log(`Enemy board clicked: [${row}, ${col}]`);
   }
 
   handleNewGameClick(event) {
-    console.log('New game clicked');
-    
-    if (this.gameUI && typeof this.gameUI.startNewGame === 'function') {
-      this.gameUI.startNewGame();
-    }
+    this.gameUI.startNewGame();
   }
 
   handleRestartClick(event) {

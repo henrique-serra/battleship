@@ -304,10 +304,58 @@ export default class BoardRenderer {
     
     btnStartAttacks.addEventListener('click', () => {
       this.controller.setPhase('attacks');
+      
+      document.querySelectorAll('.fleet-controls-section').forEach((div) => {
+        div.classList.add('disabled');
+      });
+
       this.closeModal(modal);
       console.log(this.controller.gamePhase);
     });
     
+    document.addEventListener('keydown', handleKeyDown);
+  }
+
+  showWinnerModal(winner) {
+    const winnerModal = this.createHTMLElement(['modal'], 'winnerModal', 'div');
+    
+    const modalWinnerContent = this.createHTMLElement(['modal-winner-content']);
+    
+    const spanClose = this.createHTMLElement(['close'], undefined, 'span');
+    spanClose.textContent = 'x';
+    spanClose.addEventListener('click', () => {
+      this.closeModal(winnerModal);
+    });
+    modalWinnerContent.appendChild(spanClose);
+    
+    const h2 = this.createHTMLElement(['winner-title'], undefined, 'h2');
+    h2.textContent = '🏆 Winner!';
+    modalWinnerContent.appendChild(h2);
+    
+    const p = this.createHTMLElement(['winner-name'], 'winnerName', 'p');
+    p.textContent = winner;
+    modalWinnerContent.appendChild(p);
+    
+    const button = this.createHTMLElement(['ok-button']);
+    button.textContent = 'OK';
+    button.addEventListener('click', () => this.closeModal(winnerModal));
+    modalWinnerContent.appendChild(button);
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        this.closeModal(winnerModal);
+        document.removeEventListener('keydown', handleKeyDown)
+      }
+    };
+
+    winnerModal.appendChild(modalWinnerContent);
+    winnerModal.addEventListener('click', (e) => {
+      if (e.target === winnerModal) {
+        this.closeModal(winnerModal);
+      }
+    });
+
+    document.body.appendChild(winnerModal);
     document.addEventListener('keydown', handleKeyDown);
   }
 
@@ -358,5 +406,23 @@ export default class BoardRenderer {
   clearShipSelection(shipType, boardId) {
     const shipTypeDiv = this.getShipTypeDiv(shipType, boardId);
     shipTypeDiv.classList.remove('selected');
+  }
+
+  updateShotsCount() {
+    const shotsTakenDiv = document.querySelector('#shots-taken');
+    shotsTakenDiv.textContent = this.controller.player1.attacks.length;
+  }
+
+  updateHitsCount() {
+    const hitsDiv = document.querySelector('#hits');
+    hitsDiv.textContent = this.controller.player1.attacks.filter(([ r, c, hit ]) => hit).length;
+  }
+
+  updatePrecisionPercentage() {
+    const shotsCount = this.controller.player1.attacks.length;
+    const hitsCount = this.controller.player1.attacks.filter(([r, c, hit]) => hit).length;
+    const precision = (shotsCount === 0) ? '' : `${((hitsCount / shotsCount) * 100).toFixed(2)}%`;
+    const precisionDiv = document.querySelector('#precision');
+    precisionDiv.textContent = precision;
   }
 }
