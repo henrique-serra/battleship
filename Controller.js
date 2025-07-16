@@ -44,9 +44,22 @@ class Controller {
     const attacker = attacked === this.player1 ? this.player2 : this.player1;
     
     const result = attacked.gameboard.receiveAttack(row, col);
-    attacker.attacks.push([row, col]);
+    attacker.attacks.push([row, col, result.hit, result.ship]);
 
     return result;
+  }
+
+  player2Attack() {
+    const attacker = this.player2;
+    const attacked = this.player1;
+
+    if (attacker.attacks.length === 0) {
+      const randomRow = Math.floor(Math.random() * 10);
+      const randomCol = Math.floor(Math.random() * 10);
+      console.log(randomRow);
+      console.log(randomCol);
+    }
+    const [lastAttackRow, lastAttackCol, lastAttackHit, lastAttackShip] = attacker.attacks.at(-1);
   }
   
   getWinner() {

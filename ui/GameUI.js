@@ -172,4 +172,10 @@ export default class GameUI {
       this.boardRenderer.showHit(boardId, row, col);
     } else this.boardRenderer.showMiss(boardId, row, col);
   }
+
+  player2Attack() {
+    const attacker = this.boardRenderer.controller.player2;
+    const attacked = this.boardRenderer.controller.player1;
+    const [lastAttackRow, lastAttackCol, lastAttackHit, lastAttackShip] = attacker.attacks.at(-1);
+  }
 }

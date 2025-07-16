@@ -65,7 +65,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 15px 60px 15px 15px;
+    padding: 0;
+    margin-bottom: 20px;
 }
 
 .board-title {
@@ -387,7 +388,7 @@ body {
 }
 
 .toggle-switch.vertical .toggle-slider {
-    transform: translateX(25px);
+    transform: translateX(23px);
 }
 
 .orientation-indicator {

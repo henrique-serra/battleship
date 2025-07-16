@@ -168,6 +168,10 @@ export default class EventHandlers {
       }
 
       if (this.gameUI.allShipsPositioned()) this.gameUI.boardRenderer.showAttackPhaseModal();
+      // IF it's attacks phase and player1 turn, player1 attacks
+    } else if (this.gameUI.boardRenderer.controller.gamePhase === 'attacks' && this.gameUI.boardRenderer.controller.turn === this.gameUI.boardRenderer.controller.player1) {
+      this.gameUI.attack('enemy-board', row, col);
+      // this.gameUI.boardRenderer.controller.changeTurn();
     }
 
     console.log(`Enemy board clicked: [${row}, ${col}]`);

@@ -291,7 +291,7 @@ export default class BoardRenderer {
       if (e.target === modal) {
         this.closeModal(modal);
       }
-    })
+    });
 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -299,6 +299,14 @@ export default class BoardRenderer {
         document.removeEventListener('keydown', handleKeyDown)
       }
     };
+
+    const btnStartAttacks = modal.querySelector('.btn-start-attacks');
+    
+    btnStartAttacks.addEventListener('click', () => {
+      this.controller.setPhase('attacks');
+      this.closeModal(modal);
+      console.log(this.controller.gamePhase);
+    });
     
     document.addEventListener('keydown', handleKeyDown);
   }
