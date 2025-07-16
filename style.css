@@ -60,11 +60,29 @@ body {
     border: 1px solid rgba(255,255,255,0.2);
 }
 
+.board-section-header {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 60px 15px 15px;
+}
+
 .board-title {
     font-size: 1.5rem;
     font-weight: bold;
     text-align: center;
     margin-bottom: 20px;
+    color: #ffd700;
+}
+
+.board-title-player1 {
+    flex: 1;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin: 0;
     color: #ffd700;
 }
 
@@ -225,6 +243,7 @@ body {
     background: rgba(128, 128, 128, 0.3);
     color: rgba(255, 255, 255, 0.5);
     cursor: not-allowed;
+    pointer-events: none;
     opacity: 0.6;
     transition: all 0.3s ease;
 }
@@ -308,22 +327,75 @@ body {
     box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
 }
 
-/* Modal de orientação */
-.orientation-modal {
-    position: absolute;
-    background: white;
-    border: 2px solid #333;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 1000;
-    display: none;
+.toggle-container {
+    max-width: 400px;
+    margin: 50px auto;
+    background: rgba(255,255,255,0.1);
+    padding: 30px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
 }
 
-.orientation-modal button {
-    margin: 5px;
-    padding: 5px 10px;
+/* Toggle de orientação */
+.orientation-toggle {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    /* margin: 20px 0; */
+    margin-right: 15px;
+    padding: 15px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+}
+
+.orientation-label {
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.toggle-switch {
+    width: 50px;
+    height: 25px;
+    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    border-radius: 15px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.toggle-switch.vertical {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 21px;
+    height: 21px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.toggle-switch.vertical .toggle-slider {
+    transform: translateX(25px);
+}
+
+.orientation-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 0.9rem;
 }
 
 .ship-name {
@@ -513,4 +585,26 @@ body {
     0% { opacity: 1; }
     50% { opacity: 0.7; }
     100% { opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes swordSpin {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
 }

@@ -6,6 +6,7 @@ export default class BoardRenderer {
     this.player1Gameboard = this.controller.player1.gameboard;
     this.player2Gameboard = this.controller.player2.gameboard;
     this.renderBoards();
+    this.horizontally = true;
   }
 
   renderBoards() {
@@ -118,12 +119,49 @@ export default class BoardRenderer {
     return divShipsRemaining;
   }
 
+  createToggle() {
+    const orientationToggleDiv = document.createElement('div');
+    orientationToggleDiv.id = 'orientationToggle';
+    orientationToggleDiv.classList.add('toggle-switch');
+    
+    const toggleSlider = document.createElement('div');
+    toggleSlider.classList.add('toggle-slider');
+    toggleSlider.textContent = '↔️';
+
+    orientationToggleDiv.appendChild(toggleSlider);
+
+    return orientationToggleDiv;
+  }
+
+  updateOrientation() {
+    const toggle = document.querySelector('#orientationToggle');
+    const slider = toggle.querySelector('.toggle-slider');
+
+    if (!this.horizontally) {
+      toggle.classList.add('vertical');
+      slider.textContent = '↕️';
+    } else {
+      toggle.classList.remove('vertical');
+      slider.textContent = '↔️';
+    }
+
+    console.log(`Orientation: ${this.horizontally ? 'Horizontal' : 'Vertical'}`);
+  }
+
   createPlayer1BoardSection() {
     const divBoardSection = this.createHTMLElement(['board-section']);
+
+    const divBoardHeader = this.createHTMLElement(['board-section-header']);
+
+    const toggleOrientation = this.createToggle();
+    divBoardHeader.appendChild(toggleOrientation);
+
     
-    const h2 = this.createHTMLElement(['board-title'], undefined, 'h2');
+    const h2 = this.createHTMLElement(['board-title-player1'], undefined, 'h2');
     h2.textContent = '🛡️ Your Fleet';
-    divBoardSection.appendChild(h2);
+    divBoardHeader.appendChild(h2);
+
+    divBoardSection.appendChild(divBoardHeader);
 
     const grid = this.createGrid('player-board');
     divBoardSection.appendChild(grid);
@@ -208,6 +246,7 @@ export default class BoardRenderer {
 
   disableShipTypeDiv(shipType, boardId) {
     const shipTypeDiv = this.getShipTypeDiv(shipType, boardId);
+
     shipTypeDiv.classList.remove('selected');
     shipTypeDiv.classList.add('disabled');
   }

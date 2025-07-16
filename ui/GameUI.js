@@ -54,14 +54,44 @@ export default class GameUI {
     console.log(`Ship placed at ${row}, ${col}`);
   }
 
+  placeShipPlayer2(ship, row, col, horizontally = true, random = false) {
+    const player = this.boardRenderer.controller.player2;
+    
+    // Place ship on gameboard
+    if (random) {
+      player.gameboard.placeShipRandomly(ship, 'enemy-board');
+    } else {
+      player.gameboard.placeShip(ship, row, col, horizontally);
+    }
+
+    // Update ship count
+    this.boardRenderer.updateShipCount('enemy-board', ship.shipInfo.name);
+
+    // Disable ship type div if there's no more ships to position
+    const nextShipToPosition = player.gameboard.getNextShipToPosition(ship.shipInfo.name);
+    this.selectedShipPlayer2 = nextShipToPosition ? nextShipToPosition : null;
+    if (!this.selectedShipPlayer2) {
+      this.boardRenderer.disableShipTypeDiv(ship.shipInfo.name, 'enemy-board');
+    }
+
+    console.log(`Ship placed at ${row}, ${col}`);
+  }
+
   placeAllShipsRandomly(event) {
     const dataBoard = event.target.dataset.board;
     const player = dataBoard === 'player' ? this.boardRenderer.controller.player1 : this.boardRenderer.controller.player2;
     const boardId = dataBoard === 'player' ? 'player-board' : 'enemy-board';
 
-    player.gameboard.ships.forEach((ship) => {
-      if (ship.positions.length === 0) this.placeShipRandomly(ship, boardId);
-    })
+    if (dataBoard === 'player') {
+      player.gameboard.ships.forEach((ship) => {
+        if (ship.positions.length === 0) this.placeShipRandomly(ship, boardId);
+      })
+    } else {
+      player.gameboard.ships.forEach((ship) => {
+        if (ship.positions.length === 0) this.placeShipPlayer2(ship, undefined, undefined, undefined, true);
+        console.log(ship.positions);
+      })
+    }
   }
 
   clearAllShips(event) {
@@ -69,9 +99,15 @@ export default class GameUI {
     const player = dataBoard === 'player' ? this.boardRenderer.controller.player1 : this.boardRenderer.controller.player2;
     const boardId = dataBoard === 'player' ? 'player-board' : 'enemy-board';
 
-    player.gameboard.ships.forEach((ship) => {
-      if (ship.positions.length !== 0) this.removeShip(ship, boardId);
-    })
+    if (dataBoard === 'player') {
+      player.gameboard.ships.forEach((ship) => {
+        if (ship.positions.length !== 0) this.removeShip(ship, boardId);
+      })
+    } else {
+      player.gameboard.ships.forEach((ship) => {
+        if (ship.positions.length !== 0) this.removeShipPlayer2(ship);
+      })
+    }
   }
 
   allShipsPositioned() {
@@ -97,6 +133,24 @@ export default class GameUI {
     }
 
     console.log(`Ship removed from ${boardId}`);
+  }
+
+  removeShipPlayer2(ship) {
+    const player = this.boardRenderer.controller.player2;
+
+    // Remove ship from gameboard
+    player.gameboard.removeShip(ship);
+
+    // Update ship count
+    this.boardRenderer.updateShipCount('enemy-board', ship.shipInfo.name);
+
+    // Enable ship type div if disabled
+    const shipTypeDiv = this.boardRenderer.getShipTypeDiv(ship.shipInfo.name, 'enemy-board');
+    if (shipTypeDiv.classList.contains('disabled')) {
+      this.boardRenderer.enableShipTypeDiv(ship.shipInfo.name, 'enemy-board');
+    }
+
+    console.log(`${ship.shipInfo.name} removed from enemy-board`);
   }
 
   replaceShipPosition(ship, boardId, row, col, horizontally = true) {
