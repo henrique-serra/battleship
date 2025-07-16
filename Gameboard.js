@@ -27,6 +27,38 @@ export default class Gameboard {
     }, {})
   }
 
+  getShipsPositionedByName() {
+    return Object.entries(this.shipsGroupedByName).reduce((shipsPositioned, [shipType, ships]) => {
+      shipsPositioned[shipType] = ships.filter((ship) => ship.positions.length > 0);
+      return shipsPositioned;
+    }, {})
+  }
+
+  getShipsNotPositionedByName() {
+    return Object.entries(this.shipsGroupedByName).reduce((shipsNotPositioned, [shipType, ships]) => {
+      shipsNotPositioned[shipType] = ships.filter((ship) => ship.positions.length === 0);
+      return shipsNotPositioned;
+    }, {})
+  }
+
+  getNextShipToPosition(shipType) {
+    const shipsNotPositioned = this.getShipsNotPositionedByName();
+    return shipsNotPositioned[shipType][0];
+  }
+
+  getQtyShipsNotPositioned(shipType) {
+    const shipsNotPositioned = this.getShipsNotPositionedByName();
+    return shipsNotPositioned[shipType].length;
+  }
+
+  allShipsPositioned() {
+    for (const { positions } of this.ships) {
+      if (positions.length === 0) return false;
+    }
+
+    return true;
+  }
+
   createGameBoard() {
     return Array.from({ length: 10 }, (_) => Array.from({ length: 10 }, (_) => ({ ship: null, hitTaken: false })));
   }
@@ -60,13 +92,21 @@ export default class Gameboard {
 
     if(horizontally) {
       for (let i = col; i < (col + length); i++) {
-        if(this.defenseBoard[row][i].ship !== null) throw new Error('Position already occupied!');
-        ship.positions.push([row, i])
+        if(this.defenseBoard[row][i].ship !== null) {
+          ship.positions = [];
+          throw new Error('Position already occupied!');
+        } else {
+          ship.positions.push([row, i]);
+        }
       }
     } else {
       for (let i = row; i < (row + length); i++) {
-        if(this.defenseBoard[i][col].ship !== null) throw new Error('Position already occupied!');
-        ship.positions.push([i, col]);
+        if(this.defenseBoard[i][col].ship !== null) {
+          ship.positions = [];
+          throw new Error('Position already occupied!');
+        } else {
+          ship.positions.push([i, col]);
+        }
       }
     }
 
@@ -125,9 +165,11 @@ export default class Gameboard {
     
     const ship = this.defenseBoard[row][col].ship;
     if(ship) {
-      ship.hit()
+      ship.hit();
+      return { row, col, hit: true, ship }
     } else {
       this.missedAttacks.push([row, col]);
+      return { row, col, hit: false, ship: null }
     }
   }
 
@@ -139,12 +181,78 @@ export default class Gameboard {
     return true;
   }
 
+  getRemainingShipsByType() {
+    const allShipsByName = this.groupShipsByName();
+    const remainingShips = {};
+    
+    // Para cada tipo de navio, conta apenas os não afundados
+    Object.entries(allShipsByName).forEach(([shipType, ships]) => {
+      remainingShips[shipType] = ships.filter(ship => !ship.isSunk()).length;
+    });
+    
+    return remainingShips;
+  }
+
+  getTotalShipsByType() {
+    const totalShips = {};
+    
+    this.ships.forEach(ship => {
+      const shipType = ship.shipInfo.name;
+      
+      if (!totalShips[shipType]) {
+        totalShips[shipType] = 0;
+      }
+      
+      totalShips[shipType]++;
+    });
+    
+    return totalShips;
+  }
+
+  isShipTypeDestroyed(shipType) {
+    const shipsOfType = this.ships.filter(ship => ship.shipInfo.name === shipType);
+    
+    return shipsOfType.length > 0 && shipsOfType.every(ship => ship.isSunk());
+  }
+
+  removeShipsByType(shipType) {
+    console.log(`Removing ships of type: ${shipType}`);
+    
+    // Encontra navios do tipo especificado
+    const shipsToRemove = this.ships.filter(ship => ship.shipInfo.name === shipType);
+    
+    if (shipsToRemove.length === 0) {
+      console.warn(`No ships of type "${shipType}" found to remove`);
+      return;
+    }
+    
+    // Remove navios das células do tabuleiro
+    shipsToRemove.forEach(ship => {
+      ship.positions.forEach(([row, col]) => {
+        // Remove referência do navio da célula
+        if (this.defenseBoard[row] && this.defenseBoard[row][col]) {
+          this.defenseBoard[row][col].ship = null;
+        }
+      });
+    });
+    
+    // Remove navios do array this.ships
+    this.ships = this.ships.filter(ship => ship.shipInfo.name !== shipType);
+    
+    console.log(`Removed ${shipsToRemove.length} ships of type "${shipType}"`);
+    
+    return shipsToRemove; // Retorna navios removidos (útil para debug)
+  }
+
   resetGameboard() {
     this.defenseBoard = this.createGameBoard();
     this.missedAttacks = [];
     this.ships = [
       new Ship(1),
+      new Ship(1),
       new Ship(2),
+      new Ship(2),
+      new Ship(3),
       new Ship(3),
       new Ship(4),
       new Ship(5),

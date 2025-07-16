@@ -10,6 +10,20 @@ class Controller {
     this.currentPhaseIndex = 0;
   }
 
+  getPlayer1Stats() {
+    const attacks = this.player1.attacks;
+    const hits = attacks.filter(([row, col]) => {
+      return this.player2.gameboard.defenseBoard[row][col] && 
+            this.player2.gameboard.defenseBoard[row][col].hitTaken;
+    });
+
+    return {
+      shots: attacks.length,
+      hits: hits.length,
+      misses: attacks.length - hits.length
+    };
+  }
+
   setPhase(phaseName) {
     if (this.phases.includes(phaseName)) {
       this.gamePhase = phaseName;
@@ -29,8 +43,41 @@ class Controller {
     
     const attacker = attacked === this.player1 ? this.player2 : this.player1;
     
-    attacked.gameboard.receiveAttack(row, col);
-    attacker.attacks.push([row, col]);
+    const result = attacked.gameboard.receiveAttack(row, col);
+    attacker.attacks.push([row, col, result.hit, result.ship]);
+
+    return result;
+  }
+
+  player2Attack() {
+    const attacker = this.player2;
+    const attacked = this.player1;
+    const randomRow = Math.floor(Math.random() * 10);
+    const randomCol = Math.floor(Math.random() * 10);
+
+    if (attacker.attacks.length === 0) {
+      return this.player1.gameboard.receiveAttack(randomRow, randomCol);
+    } else {
+      if (attacker.attacks.some(([r, c]) => r === randomRow && c === randomCol)) return this.player2Attack();
+      // if (attacker.attacks.length === 1) {
+      //   const [lastAttackRow, lastAttackCol, lastAttackHit, lastAttackShip] = attacker.attacks.at(-1);
+      //   if (lastAttackHit) {
+          
+      //   }
+      //   if (attacker.attacks.length > 1) {
+      //     const [secondLastAttackRow, secondLastAttackCol, secondLastAttackHit, secondLastAttackShip] = attacker.attacks.at(-2);
+      //   }
+      // }
+      return this.player1.gameboard.receiveAttack(randomRow, randomCol);
+    }
+  }
+
+  player2AttackAfterHit(lastAttackRow, lastAttackCol, secondLastAttackRow = undefined, secondLastAttackCol = undefined) {
+    let nextAttackRow, nextAttackCol;
+
+    if (secondLastAttackRow) {
+      const verticalAttack = (Math.abs(secondLastAttackRow - lastAttackRow) === 1) ? true : false;
+    }
   }
   
   getWinner() {
@@ -60,16 +107,6 @@ class Controller {
     this.player1 = new Player(player1Name, player1Type);
     this.player2 = new Player(player2Name, player2Type);
     
-    this.turn = this.player1;
-    this.setPhase('positioning');
-  }
-
-  clearGame() {
-    this.player1.gameboard.resetGameboard();
-    this.player2.gameboard.resetGameboard();
-    this.player1.attacks = [];
-    this.player2.attacks = [];
-
     this.turn = this.player1;
     this.setPhase('positioning');
   }

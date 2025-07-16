@@ -60,11 +60,30 @@ body {
     border: 1px solid rgba(255,255,255,0.2);
 }
 
+.board-section-header {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
 .board-title {
     font-size: 1.5rem;
     font-weight: bold;
     text-align: center;
     margin-bottom: 20px;
+    color: #ffd700;
+}
+
+.board-title-player1 {
+    flex: 1;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin: 0;
     color: #ffd700;
 }
 
@@ -125,7 +144,7 @@ body {
 }
 
 .hit::after {
-    content: '💥';
+    /* content: '💥'; */
     font-size: 1.2rem;
     position: absolute;
     top: 50%;
@@ -221,22 +240,224 @@ body {
     border-color: #45a049;
 }
 
-/* Modal de orientação */
-.orientation-modal {
-    position: absolute;
-    background: white;
-    border: 2px solid #333;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 1000;
-    display: none;
+.ship-type.disabled {
+    background: rgba(128, 128, 128, 0.3);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.6;
+    transition: all 0.3s ease;
 }
 
-.orientation-modal button {
-    margin: 5px;
-    padding: 5px 10px;
+.ship-type.disabled:hover {
+    background: rgba(128, 128, 128, 0.3);
+    color: rgba(255, 255, 255, 0.5);
+    transform: none;
+    cursor: not-allowed;
+}
+
+.ship-type.disabled .ship-count {
+    background: rgba(255, 215, 0, 0.4);
+    color: rgba(30, 60, 114, 0.6);
+}
+
+/* Modal de transição */
+.attack-phase-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    animation: slideIn 0.5s ease;
+}
+
+.players-ready {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.player-indicator {
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.btn-start-attacks {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 32px;
+    font-size: 1.1rem;
+    font-weight: bold;
     cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-start-attacks:hover {
+    background: linear-gradient(45deg, #ff5252, #e53935);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
+}
+
+.toggle-container {
+    max-width: 400px;
+    margin: 50px auto;
+    background: rgba(255,255,255,0.1);
+    padding: 30px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+}
+
+/* Winner modal */
+.modal {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-winner-content {
+    background-color: white;
+    margin: 20% auto;
+    padding: 30px;
+    border-radius: 8px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 20px;
+}
+
+.close:hover {
+    color: black;
+}
+
+.winner-title {
+    color: #28a745;
+    font-size: 24px;
+    margin: 20px 0 10px 0;
+}
+
+.winner-name {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.ok-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.ok-button:hover {
+    background-color: #218838;
+}
+
+/* Toggle de orientação */
+.orientation-toggle {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    /* margin: 20px 0; */
+    margin-right: 15px;
+    padding: 15px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+}
+
+.orientation-label {
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.toggle-switch {
+    width: 50px;
+    height: 25px;
+    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.toggle-switch.vertical {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 21px;
+    height: 21px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.toggle-switch.vertical .toggle-slider {
+    transform: translateX(23px);
+}
+
+.orientation-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 0.9rem;
 }
 
 .ship-name {
@@ -325,6 +546,12 @@ body {
     display: flex;
     justify-content: space-between;
     gap: 10px;
+}
+
+.fleet-controls-section.disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.6;
 }
 
 .btn-clear-all {
@@ -426,4 +653,26 @@ body {
     0% { opacity: 1; }
     50% { opacity: 0.7; }
     100% { opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes swordSpin {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
 }
